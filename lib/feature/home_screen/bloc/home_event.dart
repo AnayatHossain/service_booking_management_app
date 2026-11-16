@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../widgets/filter_dialog.dart';
 
 abstract class HomeEvent extends Equatable {
   const HomeEvent();
@@ -29,4 +30,18 @@ class HomeSearchChanged extends HomeEvent {
 
   @override
   List<Object?> get props => [query];
+}
+
+class HomeFilterApplied extends HomeEvent {
+  final String category;
+  final ServiceSortOption sortOption;
+
+  const HomeFilterApplied({required this.category, required this.sortOption});
+
+  @override
+  List<Object?> get props => [category, sortOption];
+}
+
+class HomeFilterReset extends HomeEvent {
+  const HomeFilterReset();
 }

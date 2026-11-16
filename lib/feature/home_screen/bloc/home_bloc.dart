@@ -3,6 +3,7 @@ import 'package:flutter_api_craft/flutter_api_craft.dart';
 import '../../../../core/network_caller/endpoints.dart';
 import '../../../../core/services/shared_preferences_helper.dart';
 import '../model/service_model.dart';
+import '../widgets/filter_dialog.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
@@ -12,10 +13,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeRefreshed>(_onRefresh);
     on<HomeCategorySelected>(_onCategorySelected);
     on<HomeSearchChanged>(_onSearchChanged);
+    on<HomeFilterApplied>(_onFilterApplied);
+    on<HomeFilterReset>(_onFilterReset);
   }
 
   Future<void> _onFetchData(HomeDataRequested event, Emitter<HomeState> emit) async {
-    emit(state.copyWith(status: HomeStatus.loading));
+    emit(state.copyWith(status: HomeStatus.loading, errorMessage: null));
     await _loadUserDataAndServices(emit);
   }
 
@@ -73,7 +76,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       }
 
-      final filtered = _filterServices(services, state.selectedCategory, state.searchQuery);
+      final filtered = _filterAndSortServices(services, state.selectedCategory, state.searchQuery, state.sortOption);
 
       emit(state.copyWith(
         status: HomeStatus.success,
@@ -95,7 +98,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   void _onCategorySelected(HomeCategorySelected event, Emitter<HomeState> emit) {
-    final filtered = _filterServices(state.allServices, event.category, state.searchQuery);
+    final filtered = _filterAndSortServices(state.allServices, event.category, state.searchQuery, state.sortOption);
     emit(state.copyWith(
       selectedCategory: event.category,
       filteredServices: filtered,
@@ -103,16 +106,36 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   void _onSearchChanged(HomeSearchChanged event, Emitter<HomeState> emit) {
-    final filtered = _filterServices(state.allServices, state.selectedCategory, event.query);
+    final filtered = _filterAndSortServices(state.allServices, state.selectedCategory, event.query, state.sortOption);
     emit(state.copyWith(
       searchQuery: event.query,
       filteredServices: filtered,
     ));
   }
 
-  List<ServiceModel> _filterServices(
-      List<ServiceModel> list, String category, String query) {
-    var result = list;
+  void _onFilterApplied(HomeFilterApplied event, Emitter<HomeState> emit) {
+    final filtered = _filterAndSortServices(state.allServices, event.category, state.searchQuery, event.sortOption);
+    emit(state.copyWith(
+      selectedCategory: event.category,
+      sortOption: event.sortOption,
+      filteredServices: filtered,
+    ));
+  }
+
+  void _onFilterReset(HomeFilterReset event, Emitter<HomeState> emit) {
+    final filtered = _filterAndSortServices(state.allServices, 'All', '', ServiceSortOption.defaultSort);
+    emit(state.copyWith(
+      selectedCategory: 'All',
+      searchQuery: '',
+      sortOption: ServiceSortOption.defaultSort,
+      filteredServices: filtered,
+    ));
+  }
+
+  List<ServiceModel> _filterAndSortServices(
+      List<ServiceModel> list, String category, String query, ServiceSortOption sort) {
+    var result = List<ServiceModel>.from(list);
+
     if (category != 'All' && category.isNotEmpty) {
       result = result
           .where((s) => s.category.toLowerCase() == category.toLowerCase())
@@ -127,6 +150,21 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               s.category.toLowerCase().contains(q))
           .toList();
     }
+
+    switch (sort) {
+      case ServiceSortOption.priceLowHigh:
+        result.sort((a, b) => a.price.compareTo(b.price));
+        break;
+      case ServiceSortOption.priceHighLow:
+        result.sort((a, b) => b.price.compareTo(a.price));
+        break;
+      case ServiceSortOption.ratingHigh:
+        result.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+      case ServiceSortOption.defaultSort:
+        break;
+    }
+
     return result;
   }
 }

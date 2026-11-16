@@ -38,7 +38,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -47,7 +47,7 @@ class HomeHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // User Avatar with tap to view profile
+          // User Avatar (clickable to view Profile)
           GestureDetector(
             onTap: onProfileTap,
             child: Stack(
@@ -57,12 +57,12 @@ class HomeHeader extends StatelessWidget {
                   height: 48,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primaryColor.withOpacity(0.3), width: 2),
+                    border: Border.all(color: AppColors.primaryColor.withOpacity(0.35), width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryColor.withOpacity(0.12),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                        color: AppColors.primaryColor.withOpacity(0.14),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
@@ -77,7 +77,7 @@ class HomeHeader extends StatelessWidget {
                         : _initialsWidget(),
                   ),
                 ),
-                // Online indicator
+                // Active online badge
                 Positioned(
                   bottom: 2,
                   right: 2,
@@ -96,87 +96,75 @@ class HomeHeader extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // User Name & Greeting
+          // User Greeting & Name (clickable to view Profile)
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      _greeting,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
+            child: GestureDetector(
+              onTap: onProfileTap,
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        _greeting,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppColors.textMuted),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    userName.isNotEmpty ? userName : 'Alex Johnson',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.2,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  userName.isNotEmpty ? userName : 'Alex Johnson',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -0.2,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-
-          // Location badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.location_on_rounded, size: 14, color: AppColors.primaryColor),
-                SizedBox(width: 4),
-                Text(
-                  'Dhaka',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
 
           // Notification Bell
           GestureDetector(
             onTap: onNotificationTap,
             child: Container(
-              width: 40,
-              height: 40,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: AppColors.bgColor,
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.strokeColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   const Icon(
                     Icons.notifications_none_rounded,
-                    size: 20,
+                    size: 22,
                     color: AppColors.textPrimary,
                   ),
                   Positioned(
-                    top: 9,
-                    right: 9,
+                    top: 10,
+                    right: 10,
                     child: Container(
                       width: 8,
                       height: 8,

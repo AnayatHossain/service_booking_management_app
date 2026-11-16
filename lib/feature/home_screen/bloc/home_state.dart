@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../model/service_model.dart';
+import '../widgets/filter_dialog.dart';
 
 enum HomeStatus { initial, loading, success, failure }
 
@@ -10,6 +11,7 @@ class HomeState extends Equatable {
   final String? userAvatar;
   final List<String> categories;
   final String selectedCategory;
+  final ServiceSortOption sortOption;
   final List<ServiceModel> allServices;
   final List<ServiceModel> featuredServices;
   final List<ServiceModel> filteredServices;
@@ -23,6 +25,7 @@ class HomeState extends Equatable {
     this.userAvatar,
     this.categories = const ['All'],
     this.selectedCategory = 'All',
+    this.sortOption = ServiceSortOption.defaultSort,
     this.allServices = const [],
     this.featuredServices = const [],
     this.filteredServices = const [],
@@ -37,6 +40,7 @@ class HomeState extends Equatable {
     String? userAvatar,
     List<String>? categories,
     String? selectedCategory,
+    ServiceSortOption? sortOption,
     List<ServiceModel>? allServices,
     List<ServiceModel>? featuredServices,
     List<ServiceModel>? filteredServices,
@@ -50,6 +54,7 @@ class HomeState extends Equatable {
       userAvatar: userAvatar ?? this.userAvatar,
       categories: categories ?? this.categories,
       selectedCategory: selectedCategory ?? this.selectedCategory,
+      sortOption: sortOption ?? this.sortOption,
       allServices: allServices ?? this.allServices,
       featuredServices: featuredServices ?? this.featuredServices,
       filteredServices: filteredServices ?? this.filteredServices,
@@ -66,6 +71,7 @@ class HomeState extends Equatable {
         userAvatar,
         categories,
         selectedCategory,
+        sortOption,
         allServices,
         featuredServices,
         filteredServices,

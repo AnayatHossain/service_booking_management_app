@@ -43,6 +43,11 @@ class Urls {
   static const String aiChat = 'ai/chat';
   static const String aiPrompts = 'ai/prompts';
 
+  // Notifications endpoints
+  static const String notifications = 'notifications';
+  static String markNotificationRead(String id) => 'notifications/$id/read';
+  static const String markAllNotificationsRead = 'notifications/read-all';
+
   // Token helper
   static Future<String?> get rawToken async {
     return await SharedPreferencesHelper.getAccessToken();
