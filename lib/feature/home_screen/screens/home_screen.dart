@@ -18,6 +18,7 @@ import '../widgets/search_filter_bar.dart';
 import '../widgets/featured_banner.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/service_card.dart';
+import '../model/service_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -329,12 +330,12 @@ class _HomeScreenState extends State<HomeScreen> {
               (service) => ServiceCard(
                 service: service,
                 onTap: isLoading
-                    ? null
+                    ? () {}
                     : () {
                         Get.to(() => ServiceDetailsScreen(service: service));
                       },
                 onBookNow: isLoading
-                    ? null
+                    ? () {}
                     : () {
                         Get.to(() => AppointmentScreen(service: service));
                       },
@@ -343,6 +344,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-  }
   }
 }
