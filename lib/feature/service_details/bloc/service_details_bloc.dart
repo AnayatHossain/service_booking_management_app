@@ -11,9 +11,7 @@ class ServiceDetailsBloc
 
   ServiceDetailsBloc({this.initialService})
       : super(ServiceDetailsState(
-          status: initialService != null
-              ? ServiceDetailsStatus.success
-              : ServiceDetailsStatus.initial,
+          status: ServiceDetailsStatus.loading,
           service: initialService,
         )) {
     on<ServiceDetailsFetchRequested>(_onFetchDetails);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/const/app_colors.dart';
 import '../../appointment/screen/appointment_screen.dart';
@@ -43,7 +43,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
         },
         builder: (context, state) {
           final current = state.service ?? widget.service;
-          final isLoading = state.status == ServiceDetailsStatus.loading && state.service == null;
+          final isLoading = state.status == ServiceDetailsStatus.loading;
 
           return Scaffold(
             backgroundColor: AppColors.bgColor,
@@ -298,17 +298,21 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 12),
-                                  _buildFeatureItem(Icons.verified_user_outlined, 'Vetted & background checked professionals'),
-                                  _buildFeatureItem(Icons.timer_outlined, '${current.durationMinutes} mins comprehensive servicing'),
-                                  _buildFeatureItem(Icons.thumb_up_alt_outlined, 'Full satisfaction guarantee with free rework'),
-                                  _buildFeatureItem(Icons.support_agent_outlined, '24/7 dedicated in-app support & easy cancel'),
+                                  if (current.includes.isNotEmpty)
+                                    ...current.includes.map((item) => _buildFeatureItem(Icons.verified_outlined, item))
+                                  else ...[
+                                    _buildFeatureItem(Icons.verified_user_outlined, 'Vetted & background checked professionals'),
+                                    _buildFeatureItem(Icons.timer_outlined, '${current.durationMinutes} mins comprehensive servicing'),
+                                    _buildFeatureItem(Icons.thumb_up_alt_outlined, 'Full satisfaction guarantee with free rework'),
+                                    _buildFeatureItem(Icons.support_agent_outlined, '24/7 dedicated in-app support & easy cancel'),
+                                  ],
                                 ],
                               ),
                             ),
                             const SizedBox(height: 24),
 
                             // Available Schedule Days
-                            if (current.availableDays.isNotEmpty) ...[
+                            if (current.availableDays.isNotEmpty || isLoading) ...[
                               const Text(
                                 'Available Service Days',
                                 style: TextStyle(
@@ -321,7 +325,9 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 8,
-                                children: current.availableDays
+                                children: (current.availableDays.isNotEmpty
+                                        ? current.availableDays
+                                        : const ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])
                                     .map((day) => Chip(
                                           label: Text(day),
                                           labelStyle: const TextStyle(

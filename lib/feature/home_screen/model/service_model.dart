@@ -11,6 +11,7 @@ class ServiceModel {
   final int totalReviews;
   final List<String> availableDays;
   final List<String> timeSlots;
+  final List<String> includes;
 
   ServiceModel({
     required this.id,
@@ -25,6 +26,7 @@ class ServiceModel {
     this.totalReviews = 0,
     this.availableDays = const [],
     this.timeSlots = const [],
+    this.includes = const [],
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,12 @@ class ServiceModel {
       totalReviews: json['total_reviews'] ?? 0,
       availableDays: (json['available_days'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       timeSlots: (json['time_slots'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      includes: (json['includes'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [
+        'Vetted & background checked professionals',
+        'Comprehensive servicing',
+        'Full satisfaction guarantee with free rework',
+        '24/7 dedicated in-app support & easy cancel',
+      ],
     );
   }
 
@@ -58,6 +66,7 @@ class ServiceModel {
       'total_reviews': totalReviews,
       'available_days': availableDays,
       'time_slots': timeSlots,
+      'includes': includes,
     };
   }
 }

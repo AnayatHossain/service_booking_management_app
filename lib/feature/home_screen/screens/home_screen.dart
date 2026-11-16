@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/const/app_colors.dart';
 import '../../../../core/global_widegts/empty_screen_widget.dart';
 import '../../appointment/screen/appointment_screen.dart';
@@ -16,7 +18,6 @@ import '../widgets/search_filter_bar.dart';
 import '../widgets/featured_banner.dart';
 import '../widgets/category_selector.dart';
 import '../widgets/service_card.dart';
-import '../widgets/home_shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,10 +28,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void dispose() {
     _searchController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 
@@ -57,7 +60,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state.status == HomeStatus.success || state.status == HomeStatus.failure) {
+          _refreshController.refreshCompleted();
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.bgColor,
@@ -92,11 +100,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Main Content Area with Pull-To-Refresh
+                // Main Content Area with Pull-To-Refresh (WaterDropHeader)
                 Expanded(
-                  child: RefreshIndicator(
-                    color: AppColors.primaryColor,
-                    onRefresh: () async {
+                  child: SmartRefresher(
+                    controller: _refreshController,
+                    enablePullDown: true,
+                    header: const WaterDropHeader(
+                      waterDropColor: AppColors.primaryColor,
+                      complete: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Refreshed',
+                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onRefresh: () {
                       context.read<HomeBloc>().add(const HomeRefreshed());
                     },
                     child: _buildBody(context, state),
@@ -110,22 +133,29 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, HomeState state) {
-    // 1. Loading State (Initial Shimmer)
-    if (state.status == HomeStatus.loading && state.allServices.isEmpty) {
-      return const SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.only(top: 14),
-          child: HomeShimmer(),
-        ),
-      );
-    }
+  static final List<ServiceModel> _dummyServices = List.generate(
+    4,
+    (i) => ServiceModel(
+      id: 'dummy_$i',
+      name: 'Executive Haircut & Beard Styling',
+      description: 'Precision haircut, hot towel therapy, beard shaping and premium treatment',
+      category: 'Beauty & Salon',
+      price: 35.0,
+      durationMinutes: 45,
+      imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800',
+      rating: 4.85,
+      totalReviews: 120,
+      isFeatured: true,
+    ),
+  );
 
-    // 2. Error State (Retry View)
+  Widget _buildBody(BuildContext context, HomeState state) {
+    final bool isLoading = state.status == HomeStatus.loading && state.allServices.isEmpty;
+
+    // Error State (Retry View)
     if (state.status == HomeStatus.failure && state.allServices.isEmpty) {
       return SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
           child: Center(
@@ -172,129 +202,147 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // 3. Success State
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 24),
-      children: [
-        // Featured Banner Carousel (shown when no search filter is active)
-        if (state.searchQuery.isEmpty && state.featuredServices.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
-            child: Row(
-              children: [
-                Text(
-                  'Special Offers & Featured',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Spacer(),
-                Icon(Icons.local_fire_department_rounded, size: 18, color: Colors.deepOrange),
-              ],
-            ),
-          ),
-          FeaturedBanner(
-            services: state.featuredServices,
-            onServiceTap: (service) {
-              Get.to(() => ServiceDetailsScreen(service: service));
-            },
-          ),
-          const SizedBox(height: 14),
-        ],
+    final displayFeatured = isLoading ? _dummyServices.take(2).toList() : state.featuredServices;
+    final displayCategories = isLoading
+        ? const ['All', 'Appliance Repair', 'Automotive', 'Beauty & Salon', 'Cleaning']
+        : state.categories;
+    final displayServices = isLoading ? _dummyServices : state.filteredServices;
 
-        // Horizontal Category Selector
-        if (state.searchQuery.isEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
-            child: Text(
-              'Categories',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+    // Powered directly by Skeletonizer on the real UI widgets
+    return Skeletonizer(
+      enabled: isLoading,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          // Featured Banner Carousel
+          if (state.searchQuery.isEmpty && displayFeatured.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
+              child: Row(
+                children: [
+                  Text(
+                    'Special Offers & Featured',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Spacer(),
+                  Icon(Icons.local_fire_department_rounded, size: 18, color: Colors.deepOrange),
+                ],
               ),
             ),
-          ),
-          CategorySelector(
-            categories: state.categories,
-            selectedCategory: state.selectedCategory,
-            onSelect: (cat) {
-              context.read<HomeBloc>().add(HomeCategorySelected(cat));
-            },
-          ),
-          const SizedBox(height: 18),
-        ],
+            FeaturedBanner(
+              services: displayFeatured,
+              onServiceTap: isLoading
+                  ? (_) {}
+                  : (service) {
+                      Get.to(() => ServiceDetailsScreen(service: service));
+                    },
+            ),
+            const SizedBox(height: 14),
+          ],
 
-        // Section Title & Result Count
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: Row(
-            children: [
-              Text(
-                state.searchQuery.isNotEmpty
-                    ? 'Search Results'
-                    : (state.selectedCategory == 'All'
-                        ? 'Available Services'
-                        : '${state.selectedCategory} Services'),
-                style: const TextStyle(
+          // Categories Selector
+          if (state.searchQuery.isEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Text(
+                'Categories',
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '${state.filteredServices.length} found',
+            ),
+            CategorySelector(
+              categories: displayCategories,
+              selectedCategory: state.selectedCategory,
+              onSelect: isLoading
+                  ? (_) {}
+                  : (cat) {
+                      context.read<HomeBloc>().add(HomeCategorySelected(cat));
+                    },
+            ),
+            const SizedBox(height: 18),
+          ],
+
+          // Section Title & Result Count
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Row(
+              children: [
+                Text(
+                  state.searchQuery.isNotEmpty
+                      ? 'Search Results'
+                      : (state.selectedCategory == 'All'
+                          ? 'Available Services'
+                          : '${state.selectedCategory} Services'),
                   style: const TextStyle(
-                    color: AppColors.primaryColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-              ),
-            ],
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${displayServices.length} found',
+                    style: const TextStyle(
+                      color: AppColors.primaryColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
 
-        // 4. Empty State or List
-        if (state.filteredServices.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 40),
-            child: EmptyScreenWidget(
-              title: 'No services found',
-              subtitle: state.searchQuery.isNotEmpty
-                  ? 'No services match "${state.searchQuery}". Try different keywords.'
-                  : 'No services currently listed in this category.',
-              icon: Icons.search_off_rounded,
-              buttonText: 'Reset Filters',
-              onTap: () {
-                _searchController.clear();
-                context.read<HomeBloc>().add(const HomeFilterReset());
-              },
+          // Service Cards or Empty State
+          if (!isLoading && displayServices.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: EmptyScreenWidget(
+                title: 'No services found',
+                subtitle: state.searchQuery.isNotEmpty
+                    ? 'No services match "${state.searchQuery}". Try different keywords.'
+                    : 'No services currently listed in this category.',
+                icon: Icons.search_off_rounded,
+                buttonText: 'Reset Filters',
+                onTap: () {
+                  _searchController.clear();
+                  context.read<HomeBloc>().add(const HomeFilterReset());
+                },
+              ),
+            )
+          else
+            ...displayServices.map(
+              (service) => ServiceCard(
+                service: service,
+                onTap: isLoading
+                    ? null
+                    : () {
+                        Get.to(() => ServiceDetailsScreen(service: service));
+                      },
+                onBookNow: isLoading
+                    ? null
+                    : () {
+                        Get.to(() => AppointmentScreen(service: service));
+                      },
+              ),
             ),
-          )
-        else
-          ...state.filteredServices.map(
-            (service) => ServiceCard(
-              service: service,
-              onTap: () {
-                Get.to(() => ServiceDetailsScreen(service: service));
-              },
-              onBookNow: () {
-                Get.to(() => AppointmentScreen(service: service));
-              },
-            ),
-          ),
-      ],
+        ],
+      ),
     );
+  }
   }
 }
