@@ -103,18 +103,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // Main Content Area with Pull-To-Refresh (WaterDropMaterialHeader)
                 Expanded(
-                  child: Skeletonizer(
-                    enabled: state.status == HomeStatus.loading && state.allServices.isEmpty,
-                    child: SmartRefresher(
-                      controller: _refreshController,
-                      enablePullDown: true,
-                      header: const WaterDropMaterialHeader(
-                        backgroundColor: AppColors.primaryColor,
-                        color: Colors.white,
-                      ),
-                      onRefresh: () {
-                        context.read<HomeBloc>().add(const HomeRefreshed());
-                      },
+                  child: SmartRefresher(
+                    controller: _refreshController,
+                    enablePullDown: true,
+                    header: const WaterDropMaterialHeader(
+                      backgroundColor: AppColors.primaryColor,
+                      color: Colors.white,
+                    ),
+                    onRefresh: () {
+                      context.read<HomeBloc>().add(const HomeRefreshed());
+                    },
+                    child: Skeletonizer(
+                      enabled: state.status == HomeStatus.loading && state.allServices.isEmpty,
                       child: _buildBody(context, state),
                     ),
                   ),

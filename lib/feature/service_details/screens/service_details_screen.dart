@@ -48,18 +48,18 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
 
           return Scaffold(
             backgroundColor: AppColors.bgColor,
-            body: Skeletonizer(
-              enabled: isLoading,
-              child: SmartRefresher(
-                controller: _refreshController,
-                enablePullDown: true,
-                header: const WaterDropMaterialHeader(
-                  backgroundColor: AppColors.primaryColor,
-                  color: Colors.white,
-                ),
-                onRefresh: () {
-                  context.read<ServiceDetailsBloc>().add(ServiceDetailsFetchRequested(widget.service.id));
-                },
+            body: SmartRefresher(
+              controller: _refreshController,
+              enablePullDown: true,
+              header: const WaterDropMaterialHeader(
+                backgroundColor: AppColors.primaryColor,
+                color: Colors.white,
+              ),
+              onRefresh: () {
+                context.read<ServiceDetailsBloc>().add(ServiceDetailsFetchRequested(widget.service.id));
+              },
+              child: Skeletonizer(
+                enabled: isLoading,
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
