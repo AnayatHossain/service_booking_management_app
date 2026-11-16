@@ -1,0 +1,63 @@
+class ServiceModel {
+  final String id;
+  final String name;
+  final String description;
+  final String category;
+  final double price;
+  final int durationMinutes;
+  final String imageUrl;
+  final bool isFeatured;
+  final double rating;
+  final int totalReviews;
+  final List<String> availableDays;
+  final List<String> timeSlots;
+
+  ServiceModel({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.category,
+    required this.price,
+    required this.durationMinutes,
+    required this.imageUrl,
+    this.isFeatured = false,
+    this.rating = 4.8,
+    this.totalReviews = 0,
+    this.availableDays = const [],
+    this.timeSlots = const [],
+  });
+
+  factory ServiceModel.fromJson(Map<String, dynamic> json) {
+    return ServiceModel(
+      id: json['id'] ?? json['_id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      category: json['category'] ?? 'General',
+      price: (json['price'] is num) ? (json['price'] as num).toDouble() : 0.0,
+      durationMinutes: json['duration_minutes'] ?? 60,
+      imageUrl: json['image_url'] ?? 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800',
+      isFeatured: json['is_featured'] ?? false,
+      rating: (json['rating'] is num) ? (json['rating'] as num).toDouble() : 4.8,
+      totalReviews: json['total_reviews'] ?? 0,
+      availableDays: (json['available_days'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      timeSlots: (json['time_slots'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'category': category,
+      'price': price,
+      'duration_minutes': durationMinutes,
+      'image_url': imageUrl,
+      'is_featured': isFeatured,
+      'rating': rating,
+      'total_reviews': totalReviews,
+      'available_days': availableDays,
+      'time_slots': timeSlots,
+    };
+  }
+}

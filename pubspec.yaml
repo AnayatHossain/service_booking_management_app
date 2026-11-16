@@ -1,0 +1,33 @@
+name: service_booking_management_app
+description: "Service Booking & Management Mobile Application"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  google_fonts: ^8.0.1
+  flutter_screenutil: ^5.9.3
+  shared_preferences: ^2.5.4
+  flutter_easyloading: ^3.0.5
+  intl: ^0.20.2
+  cached_network_image: ^3.4.1
+  get: ^4.6.6
+  flutter_svg: ^2.2.3
+  shimmer: ^3.0.0
+  flutter_api_craft:
+    path: ../../officesApps/flutter_api_craft
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
