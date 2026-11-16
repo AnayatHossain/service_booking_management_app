@@ -75,11 +75,13 @@ class LogInController extends GetxController {
         enableApiErrorResponseGetSnackBar: false,
       );
 
+      debugPrint('==> Calling Login: ${Urls.baseUrl}/${Urls.login}');
       final response = await api.call();
+      debugPrint('==> Login result: status=${response.statusCode}, isSuccess=${response.isSuccess}, data=${response.data}, error=${response.errorMessage}');
 
       if (response.isSuccess) {
         final resData = response.data;
-        if (resData['success'] == true && resData['data'] != null) {
+        if (resData is Map && resData['success'] == true && resData['data'] != null) {
           final data = resData['data'];
           final token = data['access_token'];
           final user = data['user'];
@@ -98,12 +100,12 @@ class LogInController extends GetxController {
 
           Get.offAll(() => const MainNavigationScreen());
         } else {
-          errorMessage.value = resData['message'] ?? 'Login failed. Please verify credentials.';
+          errorMessage.value = response.errorMessage ?? 'Login failed. Please verify credentials.';
           Get.snackbar('Error', errorMessage.value,
               snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red.shade100);
         }
       } else {
-        errorMessage.value = response.data?['message'] ?? 'Login failed. Status: ${response.statusCode}';
+        errorMessage.value = response.errorMessage ?? (response.data is Map ? response.data['message'] : null) ?? 'Login failed. (Code: ${response.statusCode})';
         Get.snackbar('Error', errorMessage.value,
             snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red.shade100);
       }

@@ -30,9 +30,11 @@ class AppButton extends StatelessWidget {
     final bool isEnabled = onTap != null && !isLoading;
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? onTap : null,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: isEnabled
               ? (buttonColor ?? AppColors.primaryColor)

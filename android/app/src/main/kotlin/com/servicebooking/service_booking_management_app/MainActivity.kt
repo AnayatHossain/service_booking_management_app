@@ -1,4 +1,4 @@
-package com.app_structure_template.app_structure_template
+package com.servicebooking.service_booking_management_app
 
 import io.flutter.embedding.android.FlutterActivity
 

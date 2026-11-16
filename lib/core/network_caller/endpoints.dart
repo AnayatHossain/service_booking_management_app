@@ -16,32 +16,32 @@ class Urls {
     return 'http://127.0.0.1:8000/api';
   }
 
-  // Auth endpoints
-  static const String register = '/auth/register';
-  static const String login = '/auth/login';
-  static const String me = '/auth/me';
-  static const String logout = '/auth/logout';
+  // Auth endpoints (no leading slash to prevent double-slash in flutter_api_craft)
+  static const String register = 'auth/register';
+  static const String login = 'auth/login';
+  static const String me = 'auth/me';
+  static const String logout = 'auth/logout';
 
   // User endpoints
-  static const String profile = '/users/profile';
-  static const String changePassword = '/users/change-password';
+  static const String profile = 'users/profile';
+  static const String changePassword = 'users/change-password';
 
   // Services endpoints
-  static const String services = '/services';
-  static const String featuredServices = '/services/featured';
-  static const String categories = '/services/categories';
-  static String serviceDetails(String id) => '/services/$id';
+  static const String services = 'services';
+  static const String featuredServices = 'services/featured';
+  static const String categories = 'services/categories';
+  static String serviceDetails(String id) => 'services/$id';
 
   // Appointments endpoints
-  static const String appointments = '/appointments';
-  static const String myAppointments = '/appointments/my';
-  static const String checkAvailability = '/appointments/availability';
-  static String appointmentDetails(String id) => '/appointments/$id';
-  static String cancelAppointment(String id) => '/appointments/$id/cancel';
+  static const String appointments = 'appointments';
+  static const String myAppointments = 'appointments/my';
+  static const String checkAvailability = 'appointments/availability';
+  static String appointmentDetails(String id) => 'appointments/$id';
+  static String cancelAppointment(String id) => 'appointments/$id/cancel';
 
   // AI Assistant endpoints
-  static const String aiChat = '/ai/chat';
-  static const String aiPrompts = '/ai/prompts';
+  static const String aiChat = 'ai/chat';
+  static const String aiPrompts = 'ai/prompts';
 
   // Token helper
   static Future<String?> get rawToken async {
