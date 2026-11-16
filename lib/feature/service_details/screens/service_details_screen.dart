@@ -110,8 +110,10 @@ ${current.description}
 ${current.imageUrl}
 ''';
                                 SharePlus.instance.share(
-                                  shareText,
-                                  subject: 'Book ${current.name} on Service Booking App',
+                                  ShareParams(
+                                    text: shareText,
+                                    subject: 'Book ${current.name} on Service Booking App',
+                                  ),
                                 );
                               },
                             ),
