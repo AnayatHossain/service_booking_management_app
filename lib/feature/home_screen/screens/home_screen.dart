@@ -123,10 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onRefresh: () {
                       context.read<HomeBloc>().add(const HomeRefreshed());
                     },
-                    child: Skeletonizer(
-                      enabled: state.status == HomeStatus.loading && state.allServices.isEmpty,
-                      child: _buildBody(context, state),
-                    ),
+                    child: _buildBody(context, state),
                   ),
                 ),
               ],
@@ -212,137 +209,145 @@ class _HomeScreenState extends State<HomeScreen> {
         : state.categories;
     final displayServices = isLoading ? _dummyServices : state.filteredServices;
 
-    // Return ListView directly as child of SmartRefresher
+    // Return ListView directly as child of SmartRefresher so pull-to-refresh works
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-          // Featured Banner Carousel
-          if (state.searchQuery.isEmpty && displayFeatured.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
-              child: Row(
-                children: [
-                  Text(
-                    'Special Offers & Featured',
+        Skeletonizer(
+          enabled: isLoading,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Featured Banner Carousel
+              if (state.searchQuery.isEmpty && displayFeatured.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Special Offers & Featured',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Spacer(),
+                      Icon(Icons.local_fire_department_rounded, size: 18, color: Colors.deepOrange),
+                    ],
+                  ),
+                ),
+                FeaturedBanner(
+                  services: displayFeatured,
+                  onServiceTap: isLoading
+                      ? (_) {}
+                      : (service) {
+                          Get.to(() => ServiceDetailsScreen(service: service));
+                        },
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // Categories Selector
+              if (state.searchQuery.isEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+                  child: Text(
+                    'Categories',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  Spacer(),
-                  Icon(Icons.local_fire_department_rounded, size: 18, color: Colors.deepOrange),
-                ],
-              ),
-            ),
-            FeaturedBanner(
-              services: displayFeatured,
-              onServiceTap: isLoading
-                  ? (_) {}
-                  : (service) {
-                      Get.to(() => ServiceDetailsScreen(service: service));
-                    },
-            ),
-            const SizedBox(height: 14),
-          ],
-
-          // Categories Selector
-          if (state.searchQuery.isEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
-              child: Text(
-                'Categories',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
                 ),
-              ),
-            ),
-            CategorySelector(
-              categories: displayCategories,
-              selectedCategory: state.selectedCategory,
-              onSelect: isLoading
-                  ? (_) {}
-                  : (cat) {
-                      context.read<HomeBloc>().add(HomeCategorySelected(cat));
-                    },
-            ),
-            const SizedBox(height: 18),
-          ],
-
-          // Section Title & Result Count
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            child: Row(
-              children: [
-                Text(
-                  state.searchQuery.isNotEmpty
-                      ? 'Search Results'
-                      : (state.selectedCategory == 'All'
-                          ? 'Available Services'
-                          : '${state.selectedCategory} Services'),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
+                CategorySelector(
+                  categories: displayCategories,
+                  selectedCategory: state.selectedCategory,
+                  onSelect: isLoading
+                      ? (_) {}
+                      : (cat) {
+                          context.read<HomeBloc>().add(HomeCategorySelected(cat));
+                        },
                 ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${displayServices.length} found',
-                    style: const TextStyle(
-                      color: AppColors.primaryColor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 18),
               ],
-            ),
-          ),
 
-          // Service Cards or Empty State
-          if (!isLoading && displayServices.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 40),
-              child: EmptyScreenWidget(
-                title: 'No services found',
-                subtitle: state.searchQuery.isNotEmpty
-                    ? 'No services match "${state.searchQuery}". Try different keywords.'
-                    : 'No services currently listed in this category.',
-                icon: Icons.search_off_rounded,
-                buttonText: 'Reset Filters',
-                onTap: () {
-                  _searchController.clear();
-                  context.read<HomeBloc>().add(const HomeFilterReset());
-                },
+              // Section Title & Result Count
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: Row(
+                  children: [
+                    Text(
+                      state.searchQuery.isNotEmpty
+                          ? 'Search Results'
+                          : (state.selectedCategory == 'All'
+                              ? 'Available Services'
+                              : '${state.selectedCategory} Services'),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${displayServices.length} found',
+                        style: const TextStyle(
+                          color: AppColors.primaryColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )
-          else
-            ...displayServices.map(
-              (service) => ServiceCard(
-                service: service,
-                onTap: isLoading
-                    ? () {}
-                    : () {
-                        Get.to(() => ServiceDetailsScreen(service: service));
-                      },
-                onBookNow: isLoading
-                    ? () {}
-                    : () {
-                        Get.to(() => AppointmentScreen(service: service));
-                      },
-              ),
-            ),
-        ],
-      );
+
+              // Service Cards or Empty State
+              if (!isLoading && displayServices.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 40),
+                  child: EmptyScreenWidget(
+                    title: 'No services found',
+                    subtitle: state.searchQuery.isNotEmpty
+                        ? 'No services match "${state.searchQuery}". Try different keywords.'
+                        : 'No services currently listed in this category.',
+                    icon: Icons.search_off_rounded,
+                    buttonText: 'Reset Filters',
+                    onTap: () {
+                      _searchController.clear();
+                      context.read<HomeBloc>().add(const HomeFilterReset());
+                    },
+                  ),
+                )
+              else
+                ...displayServices.map(
+                  (service) => ServiceCard(
+                    service: service,
+                    onTap: isLoading
+                        ? () {}
+                        : () {
+                            Get.to(() => ServiceDetailsScreen(service: service));
+                          },
+                    onBookNow: isLoading
+                        ? () {}
+                        : () {
+                            Get.to(() => AppointmentScreen(service: service));
+                          },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
