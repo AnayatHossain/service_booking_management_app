@@ -109,7 +109,7 @@ ${current.description}
 📲 Book your appointment on Service Booking & Management App!
 ${current.imageUrl}
 ''';
-                                Share.share(
+                                SharePlus.instance.share(
                                   shareText,
                                   subject: 'Book ${current.name} on Service Booking App',
                                 );
@@ -415,8 +415,8 @@ ${current.imageUrl}
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             bottomNavigationBar: BookBottomBar(
