@@ -101,29 +101,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Main Content Area with Pull-To-Refresh (WaterDropHeader)
+                // Main Content Area with Pull-To-Refresh (WaterDropMaterialHeader)
                 Expanded(
-                  child: SmartRefresher(
-                    controller: _refreshController,
-                    enablePullDown: true,
-                    header: const WaterDropHeader(
-                      waterDropColor: AppColors.primaryColor,
-                      complete: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
-                          SizedBox(width: 8),
-                          Text(
-                            'Refreshed',
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
-                          ),
-                        ],
+                  child: Skeletonizer(
+                    enabled: state.status == HomeStatus.loading && state.allServices.isEmpty,
+                    child: SmartRefresher(
+                      controller: _refreshController,
+                      enablePullDown: true,
+                      header: const WaterDropMaterialHeader(
+                        backgroundColor: AppColors.primaryColor,
+                        color: Colors.white,
                       ),
+                      onRefresh: () {
+                        context.read<HomeBloc>().add(const HomeRefreshed());
+                      },
+                      child: _buildBody(context, state),
                     ),
-                    onRefresh: () {
-                      context.read<HomeBloc>().add(const HomeRefreshed());
-                    },
-                    child: _buildBody(context, state),
                   ),
                 ),
               ],
@@ -209,13 +202,11 @@ class _HomeScreenState extends State<HomeScreen> {
         : state.categories;
     final displayServices = isLoading ? _dummyServices : state.filteredServices;
 
-    // Powered directly by Skeletonizer on the real UI widgets
-    return Skeletonizer(
-      enabled: isLoading,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
+    // Return ListView directly as child of SmartRefresher
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(bottom: 24),
+      children: [
           // Featured Banner Carousel
           if (state.searchQuery.isEmpty && displayFeatured.isNotEmpty) ...[
             const Padding(
@@ -342,7 +333,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
         ],
-      ),
-    );
+      );
   }
 }

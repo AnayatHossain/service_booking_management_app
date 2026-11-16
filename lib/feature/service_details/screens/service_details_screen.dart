@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/const/app_colors.dart';
 import '../../appointment/screen/appointment_screen.dart';
 import '../../home_screen/model/service_model.dart';
@@ -47,28 +48,18 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
 
           return Scaffold(
             backgroundColor: AppColors.bgColor,
-            body: SmartRefresher(
-              controller: _refreshController,
-              enablePullDown: true,
-              header: const WaterDropHeader(
-                waterDropColor: AppColors.primaryColor,
-                complete: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
-                    SizedBox(width: 8),
-                    Text(
-                      'Refreshed',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
-                    ),
-                  ],
+            body: Skeletonizer(
+              enabled: isLoading,
+              child: SmartRefresher(
+                controller: _refreshController,
+                enablePullDown: true,
+                header: const WaterDropMaterialHeader(
+                  backgroundColor: AppColors.primaryColor,
+                  color: Colors.white,
                 ),
-              ),
-              onRefresh: () {
-                context.read<ServiceDetailsBloc>().add(ServiceDetailsFetchRequested(widget.service.id));
-              },
-              child: Skeletonizer(
-                enabled: isLoading,
+                onRefresh: () {
+                  context.read<ServiceDetailsBloc>().add(ServiceDetailsFetchRequested(widget.service.id));
+                },
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
@@ -96,11 +87,23 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                             child: IconButton(
                               icon: const Icon(Icons.share_outlined, color: Colors.white, size: 20),
                               onPressed: () {
-                                Get.snackbar(
-                                  'Share Service',
-                                  'Sharing "${current.name}"',
-                                  snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor: Colors.white,
+                                final shareText = '''
+✨ Check out "${current.name}" on Service Booking App!
+
+🏷️ Category: ${current.category}
+💰 Price: \$${current.price.toStringAsFixed(2)}
+⏱️ Duration: ${current.durationMinutes} mins
+⭐ Rating: ${current.rating} (${current.totalReviews} reviews)
+
+📝 Description:
+${current.description}
+
+📲 Book your appointment on Service Booking & Management App!
+${current.imageUrl}
+''';
+                                Share.share(
+                                  shareText,
+                                  subject: 'Book ${current.name} on Service Booking App',
                                 );
                               },
                             ),
@@ -338,6 +341,66 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                                           backgroundColor: AppColors.primaryLight,
                                           side: BorderSide(color: AppColors.primaryColor.withOpacity(0.3)),
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
+
+                            // Available Service Hours (Time Slots)
+                            if (current.timeSlots.isNotEmpty || isLoading) ...[
+                              const SizedBox(height: 22),
+                              const Text(
+                                'Available Service Hours',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: (current.timeSlots.isNotEmpty
+                                        ? current.timeSlots
+                                        : const [
+                                            '09:00 AM',
+                                            '10:00 AM',
+                                            '11:00 AM',
+                                            '01:00 PM',
+                                            '02:00 PM',
+                                            '03:00 PM'
+                                          ])
+                                    .map((slot) => Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: AppColors.primaryColor.withOpacity(0.35)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: AppColors.primaryColor.withOpacity(0.04),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(Icons.access_time_rounded,
+                                                  size: 14, color: AppColors.primaryColor),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                slot,
+                                                style: const TextStyle(
+                                                  color: AppColors.primaryColor,
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ))
                                     .toList(),
                               ),
