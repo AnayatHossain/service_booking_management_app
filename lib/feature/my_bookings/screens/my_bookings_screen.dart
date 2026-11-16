@@ -116,9 +116,19 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             body: SmartRefresher(
               controller: _refreshController,
               enablePullDown: true,
-              header: const WaterDropMaterialHeader(
-                backgroundColor: AppColors.primaryColor,
-                color: Colors.white,
+              header: const WaterDropHeader(
+                waterDropColor: AppColors.primaryColor,
+                complete: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
+                    SizedBox(width: 8),
+                    Text(
+                      'Refreshed',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
               ),
               onRefresh: () {
                 bloc.add(const MyBookingsFetchRequested());
