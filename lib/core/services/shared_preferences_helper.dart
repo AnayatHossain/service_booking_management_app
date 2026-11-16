@@ -65,6 +65,10 @@ class SharedPreferencesHelper {
     return prefs.getString(_avatarUrlKey);
   }
 
+  static Future<String?> getUserAvatar() async {
+    return getAvatarUrl();
+  }
+
   static Future<void> updateProfileInfo({required String name, String? phone, String? avatarUrl}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNameKey, name);
@@ -94,5 +98,9 @@ class SharedPreferencesHelper {
       await prefs.setBool(_rememberMeKey, true);
       await prefs.setString(_emailKey, email);
     }
+  }
+
+  static Future<void> clearUserData() async {
+    await clearUserSession();
   }
 }

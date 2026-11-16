@@ -5,19 +5,22 @@ class CustomTextField extends StatefulWidget {
   final String? label;
   final Color? labelColor;
   final Color? borderColor;
-  final String? prefixIcon;
+  final dynamic prefixIcon; // Accepts IconData or String asset path
   final IconData? prefixIconData;
   final bool isPassword;
+  final bool? obscureText;
   final bool isPasswordVisible;
   final VoidCallback? onTogglePassword;
+  final VoidCallback? onSuffixTap;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
-  final Widget? suffixIcon;
+  final dynamic suffixIcon; // Accepts Widget or IconData
   final String? hintText;
   final Function(String)? onChanged;
   final Function()? onTap;
   final bool readOnly;
+  final bool enabled;
   final int maxLines;
   final int? maxLength;
 
@@ -30,8 +33,10 @@ class CustomTextField extends StatefulWidget {
     this.prefixIcon,
     this.prefixIconData,
     this.isPassword = false,
+    this.obscureText,
     this.isPasswordVisible = false,
     this.onTogglePassword,
+    this.onSuffixTap,
     this.keyboardType,
     this.validator,
     this.controller,
@@ -39,6 +44,7 @@ class CustomTextField extends StatefulWidget {
     this.hintText,
     this.onChanged,
     this.readOnly = false,
+    this.enabled = true,
     this.maxLines = 1,
     this.maxLength,
   });
@@ -54,7 +60,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    _obscure = widget.isPassword;
+    _obscure = widget.obscureText ?? widget.isPassword;
     _focusNode.addListener(() => setState(() {}));
   }
 
@@ -64,10 +70,60 @@ class _CustomTextFieldState extends State<CustomTextField> {
     super.dispose();
   }
 
-  bool get _useExternalToggle => widget.onTogglePassword != null;
   bool get _shouldObscure {
+    if (widget.obscureText != null) return widget.obscureText!;
     if (!widget.isPassword) return false;
-    return _useExternalToggle ? !widget.isPasswordVisible : _obscure;
+    if (widget.onTogglePassword != null) return !widget.isPasswordVisible;
+    return _obscure;
+  }
+
+  Widget? _buildPrefix() {
+    if (widget.prefixIconData != null) {
+      return Icon(widget.prefixIconData,
+          color: _focusNode.hasFocus ? AppColors.primaryColor : AppColors.textMuted, size: 20);
+    }
+    if (widget.prefixIcon is IconData) {
+      return Icon(widget.prefixIcon as IconData,
+          color: _focusNode.hasFocus ? AppColors.primaryColor : AppColors.textMuted, size: 20);
+    }
+    if (widget.prefixIcon is String) {
+      return Padding(
+        padding: const EdgeInsets.all(12),
+        child: Image.asset(widget.prefixIcon as String, width: 20, height: 20),
+      );
+    }
+    return null;
+  }
+
+  Widget? _buildSuffix() {
+    if (widget.suffixIcon is Widget) return widget.suffixIcon as Widget;
+    if (widget.suffixIcon is IconData) {
+      return IconButton(
+        icon: Icon(widget.suffixIcon as IconData, color: AppColors.textMuted, size: 20),
+        onPressed: widget.onSuffixTap ?? widget.onTogglePassword,
+      );
+    }
+    if (widget.isPassword || widget.obscureText != null) {
+      return IconButton(
+        icon: Icon(
+          _shouldObscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+          color: AppColors.textMuted,
+          size: 20,
+        ),
+        onPressed: () {
+          if (widget.onSuffixTap != null) {
+            widget.onSuffixTap!();
+          } else if (widget.onTogglePassword != null) {
+            widget.onTogglePassword!();
+          } else {
+            setState(() {
+              _obscure = !_obscure;
+            });
+          }
+        },
+      );
+    }
+    return null;
   }
 
   @override
@@ -98,13 +154,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
           obscureText: _shouldObscure,
           onChanged: widget.onChanged,
           readOnly: widget.readOnly,
+          enabled: widget.enabled,
           maxLines: widget.maxLines,
           style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
           decoration: InputDecoration(
             hintText: widget.hintText,
             hintStyle: const TextStyle(fontSize: 14, color: AppColors.textMuted),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: widget.enabled ? Colors.white : AppColors.bgColor,
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(
@@ -127,32 +184,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
               borderRadius: BorderRadius.circular(radius),
               borderSide: const BorderSide(color: AppColors.error, width: 1.8),
             ),
-            prefixIcon: widget.prefixIconData != null
-                ? Icon(widget.prefixIconData, color: _focusNode.hasFocus ? AppColors.primaryColor : AppColors.textMuted, size: 20)
-                : (widget.prefixIcon != null
-                    ? Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Image.asset(widget.prefixIcon!, width: 20, height: 20),
-                      )
-                    : null),
-            suffixIcon: widget.isPassword
-                ? IconButton(
-                    icon: Icon(
-                      _shouldObscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: AppColors.textMuted,
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      if (_useExternalToggle) {
-                        widget.onTogglePassword!();
-                      } else {
-                        setState(() {
-                          _obscure = !_obscure;
-                        });
-                      }
-                    },
-                  )
-                : widget.suffixIcon,
+            prefixIcon: _buildPrefix(),
+            suffixIcon: _buildSuffix(),
           ),
         ),
       ],

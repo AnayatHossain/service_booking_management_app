@@ -4,12 +4,14 @@ import '../../../../core/global_widegts/app_button.dart';
 
 class BookBottomBar extends StatelessWidget {
   final double price;
-  final VoidCallback onBookTap;
+  final VoidCallback? onBookTap;
+  final VoidCallback? onBookNow;
 
   const BookBottomBar({
     super.key,
     required this.price,
-    required this.onBookTap,
+    this.onBookTap,
+    this.onBookNow,
   });
 
   @override
@@ -50,7 +52,7 @@ class BookBottomBar extends StatelessWidget {
               child: AppButton(
                 text: 'Book Appointment',
                 buttonColor: AppColors.primaryColor,
-                onTap: onBookTap,
+                onTap: onBookNow ?? onBookTap,
               ),
             ),
           ],

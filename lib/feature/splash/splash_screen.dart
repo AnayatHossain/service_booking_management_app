@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (loggedIn) {
       Get.offAll(() => const MainNavigationScreen());
     } else {
-      Get.offAll(() => const LogInScreen());
+      Get.offAll(() => const LoginScreen());
     }
   }
 

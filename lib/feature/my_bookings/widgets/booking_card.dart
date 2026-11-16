@@ -5,12 +5,14 @@ import 'booking_status_chip.dart';
 
 class BookingCard extends StatelessWidget {
   final BookingModel booking;
-  final VoidCallback onCancelTap;
+  final VoidCallback? onCancelTap;
+  final VoidCallback? onCancel;
 
   const BookingCard({
     super.key,
     required this.booking,
-    required this.onCancelTap,
+    this.onCancelTap,
+    this.onCancel,
   });
 
   @override
@@ -118,9 +120,9 @@ class BookingCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (booking.canBeCancelled)
+              if (booking.canBeCancelled && (onCancelTap != null || onCancel != null))
                 OutlinedButton(
-                  onPressed: onCancelTap,
+                  onPressed: onCancelTap ?? onCancel,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
                     side: const BorderSide(color: AppColors.error),

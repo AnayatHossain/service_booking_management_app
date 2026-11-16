@@ -166,7 +166,7 @@ class ProfileController extends GetxController {
     } catch (_) {}
 
     await SharedPreferencesHelper.clearUserSession();
-    Get.offAll(() => const LogInScreen());
+    Get.offAll(() => const LoginScreen());
   }
 
   @override

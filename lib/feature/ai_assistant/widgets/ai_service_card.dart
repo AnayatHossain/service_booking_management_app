@@ -51,7 +51,7 @@ class AiServiceCard extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor, fontSize: 14),
               ),
               InkWell(
-                onTap: () => Get.to(() => ServiceDetailsScreen(serviceId: service.id)),
+                onTap: () => Get.to(() => ServiceDetailsScreen(service: service)),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(

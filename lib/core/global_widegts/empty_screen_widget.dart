@@ -4,78 +4,91 @@ import '../const/app_colors.dart';
 
 class EmptyScreenWidget extends StatelessWidget {
   final String title;
-  final String subTitle;
-  final String buttonText;
+  final String? subTitle;
+  final String? subtitle;
+  final String? buttonText;
   final VoidCallback? onButtonTap;
-  final String imagePath;
+  final VoidCallback? onTap;
+  final IconData? icon;
+  final String? imagePath;
 
   const EmptyScreenWidget({
     super.key,
     required this.title,
-    required this.subTitle,
-    required this.buttonText,
+    this.subTitle,
+    this.subtitle,
+    this.buttonText,
     this.onButtonTap,
-    this.imagePath = "assets/images/empty_screen.png",
+    this.onTap,
+    this.icon,
+    this.imagePath,
   });
 
   @override
   Widget build(BuildContext context) {
+    final textSubtitle = subTitle ?? subtitle ?? '';
+    final buttonAction = onButtonTap ?? onTap;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 24),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imagePath, width: 300, height: 300),
-            const SizedBox(height: 30),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight.withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon ?? Icons.inbox_rounded,
+                size: 40,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // Title
             Text(
               title,
+              textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                color: AppColors.blackColor,
-                fontSize: 32,
+                color: AppColors.textPrimary,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 10),
-
-            // Subtitle
-            Text(
-              subTitle,
-              style: GoogleFonts.inter(
-                color: AppColors.blackColor,
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 30),
-
-            // Button
-            GestureDetector(
-              onTap: onButtonTap,
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    buttonText,
-                    style: GoogleFonts.inter(
-                      color: AppColors.blackColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+            if (textSubtitle.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              // Subtitle
+              Text(
+                textSubtitle,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  height: 1.4,
                 ),
               ),
-            ),
+            ],
+
+            if (buttonText != null && buttonAction != null) ...[
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                onPressed: buttonAction,
+                child: Text(buttonText!, style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
           ],
         ),
       ),
