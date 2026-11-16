@@ -2,22 +2,21 @@ import org.gradle.api.JavaVersion
 
 plugins {
     id("com.android.application")
-    // id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    namespace = "com.app_structure_template.app_structure_template"
+    namespace = "com.servicebooking.service_booking_management_app"
     compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
 
     defaultConfig {
-        applicationId = "com.app_structure_template.app_structure_template"
+        applicationId = "com.servicebooking.service_booking_management_app"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     compileOptions {
@@ -53,5 +52,4 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.25")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    //implementation("com.google.android.material:material:1.12.0")
 }
