@@ -34,6 +34,7 @@ class AppButton extends StatelessWidget {
       onTap: isEnabled ? onTap : null,
       child: Container(
         width: double.infinity,
+        alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: isEnabled
@@ -42,46 +43,42 @@ class AppButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(40),
           border: Border.all(color: borderColor ?? Colors.transparent),
         ),
-        child: Center(
-          child: isLoading
-              ? SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: textColor ?? Colors.white,
-            ),
-          )
-              : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (imagePath != null) ...[
-                Image.asset(
-                  imagePath!,
-                  height: 20,
-                  width: 20,
+        child: isLoading
+            ? SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
                   color: textColor ?? Colors.white,
                 ),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                text,
-                style: TextStyle(
-                  color: textColor ?? Colors.white,
-                  fontSize: (textSize != null && textSize != 0)
-                      ? textSize
-                      : 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (imagePath != null) ...[
+                    Image.asset(
+                      imagePath!,
+                      height: 20,
+                      width: 20,
+                      color: textColor ?? Colors.white,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    text,
+                    style: TextStyle(
+                      color: textColor ?? Colors.white,
+                      fontSize: (textSize != null && textSize != 0) ? textSize : 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (icon != null) ...[
+                    const SizedBox(width: 8),
+                    Icon(icon, color: textColor ?? Colors.white, size: 20),
+                  ],
+                ],
               ),
-              if (icon != null) ...[
-                const SizedBox(width: 8),
-                Icon(icon, color: textColor ?? Colors.white, size: 20),
-              ],
-            ],
-          ),
-        ),
       ),
     );
   }

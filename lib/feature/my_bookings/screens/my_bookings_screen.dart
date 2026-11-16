@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/const/app_colors.dart';
 import '../../../../core/global_widegts/empty_screen_widget.dart';
 import '../bloc/my_bookings_bloc.dart';
@@ -9,9 +11,23 @@ import '../bloc/my_bookings_state.dart';
 import '../model/booking_model.dart';
 import '../widgets/booking_card.dart';
 import '../widgets/booking_filter_tabs.dart';
+import 'booking_details_screen.dart';
 
-class MyBookingsScreen extends StatelessWidget {
+class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
+
+  @override
+  State<MyBookingsScreen> createState() => _MyBookingsScreenState();
+}
+
+class _MyBookingsScreenState extends State<MyBookingsScreen> {
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
+  }
 
   void _confirmCancel(BuildContext context, BookingModel booking) {
     showDialog(
@@ -48,6 +64,9 @@ class MyBookingsScreen extends StatelessWidget {
       create: (context) => MyBookingsBloc(),
       child: BlocConsumer<MyBookingsBloc, MyBookingsState>(
         listener: (context, state) {
+          if (state.status == MyBookingsStatus.success || state.status == MyBookingsStatus.failure) {
+            _refreshController.refreshCompleted();
+          }
           if (state.successMessage != null) {
             Get.snackbar(
               'Success',
@@ -67,6 +86,9 @@ class MyBookingsScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
+          final bloc = context.read<MyBookingsBloc>();
+          final isLoading = state.status == MyBookingsStatus.loading && state.allBookings.isEmpty;
+
           return Scaffold(
             backgroundColor: AppColors.bgColor,
             appBar: AppBar(
@@ -86,37 +108,83 @@ class MyBookingsScreen extends StatelessWidget {
                 child: BookingFilterTabs(
                   selectedIndex: state.selectedTab,
                   onTabSelected: (idx) {
-                    context.read<MyBookingsBloc>().add(MyBookingsFilterChanged(idx));
+                    bloc.add(MyBookingsFilterChanged(idx));
                   },
                 ),
               ),
             ),
-            body: RefreshIndicator(
-              color: AppColors.primaryColor,
-              onRefresh: () async {
-                context.read<MyBookingsBloc>().add(const MyBookingsFetchRequested());
+            body: SmartRefresher(
+              controller: _refreshController,
+              enablePullDown: true,
+              header: const WaterDropHeader(
+                waterDropColor: AppColors.primaryColor,
+                complete: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
+                    SizedBox(width: 8),
+                    Text(
+                      'Refreshed',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+              onRefresh: () {
+                bloc.add(const MyBookingsFetchRequested());
               },
-              child: state.status == MyBookingsStatus.loading && state.allBookings.isEmpty
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
-                  : state.filteredBookings.isEmpty
-                      ? EmptyScreenWidget(
-                          title: 'No Bookings Found',
-                          subtitle: state.selectedTab == 0
-                              ? 'You have not booked any appointments yet.'
-                              : 'No appointments in this category.',
-                          icon: Icons.event_busy_rounded,
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.only(top: 12, bottom: 24),
-                          itemCount: state.filteredBookings.length,
-                          itemBuilder: (context, index) {
-                            final booking = state.filteredBookings[index];
+              child: Skeletonizer(
+                enabled: isLoading,
+                child: (!isLoading && state.filteredBookings.isEmpty)
+                    ? EmptyScreenWidget(
+                        title: 'No Bookings Found',
+                        subtitle: state.selectedTab == 0
+                            ? 'You have not booked any appointments yet.'
+                            : 'No appointments in this category.',
+                        icon: Icons.event_busy_rounded,
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.only(top: 10, bottom: 24),
+                        itemCount: isLoading ? 3 : state.filteredBookings.length,
+                        itemBuilder: (context, index) {
+                          if (isLoading) {
                             return BookingCard(
-                              booking: booking,
-                              onCancel: booking.canBeCancelled ? () => _confirmCancel(context, booking) : null,
+                              booking: BookingModel(
+                                id: 'placeholder-id',
+                                userId: 'uid',
+                                userName: 'User Name',
+                                userEmail: 'user@example.com',
+                                serviceId: 'sid',
+                                serviceName: 'Loading Service Name Here...',
+                                serviceCategory: 'Cleaning',
+                                servicePrice: 45.0,
+                                serviceImage: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800',
+                                date: '2026-11-20',
+                                timeSlot: '10:00 AM',
+                                durationMinutes: 60,
+                                status: 'Confirmed',
+                                createdAt: '',
+                              ),
+                              onCancelTap: null,
                             );
-                          },
-                        ),
+                          }
+
+                          final booking = state.filteredBookings[index];
+                          return BookingCard(
+                            booking: booking,
+                            onTap: () {
+                              Get.to(() => BookingDetailsScreen(
+                                    booking: booking,
+                                    onCancelBooking: booking.canBeCancelled
+                                        ? () => _confirmCancel(context, booking)
+                                        : null,
+                                  ));
+                            },
+                            onCancel: booking.canBeCancelled ? () => _confirmCancel(context, booking) : null,
+                          );
+                        },
+                      ),
+              ),
             ),
           );
         },

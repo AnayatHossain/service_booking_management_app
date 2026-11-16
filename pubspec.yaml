@@ -23,6 +23,8 @@ dependencies:
   get: ^4.6.6
   flutter_svg: ^2.2.3
   shimmer: ^3.0.0
+  skeletonizer: ^1.4.2
+  pull_to_refresh_flutter3: ^2.0.2
   flutter_api_craft:
     path: ../../officesApps/flutter_api_craft
 
