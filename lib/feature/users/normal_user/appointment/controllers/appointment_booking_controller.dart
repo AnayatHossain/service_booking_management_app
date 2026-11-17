@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_api_craft/flutter_api_craft.dart';
 import 'package:service_booking_management_app/core/network_caller/endpoints.dart';
 import '../../home_screen/model/service_model.dart';
-import '../../my_bookings/screens/my_bookings_screen.dart';
+import '../../navigation/screen/main_navigation_screen.dart';
 
 class AppointmentBookingController extends GetxController {
   final ServiceModel service;
@@ -152,8 +152,7 @@ class AppointmentBookingController extends GetxController {
               TextButton(
                 onPressed: () {
                   Get.back(); // close dialog
-                  Get.back(); // exit booking screen
-                  Get.to(() => const MyBookingsScreen());
+                  Get.offAll(() => const MainNavigationScreen(initialIndex: 1));
                 },
                 child: const Text('View My Bookings', style: TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold)),
               ),

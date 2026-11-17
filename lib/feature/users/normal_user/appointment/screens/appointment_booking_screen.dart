@@ -10,7 +10,7 @@ import '../bloc/appointment_event.dart';
 import '../bloc/appointment_state.dart';
 import '../widgets/date_picker_timeline.dart';
 import '../widgets/time_slot_selector.dart';
-import '../../my_bookings/screens/my_bookings_screen.dart';
+import '../../navigation/screen/main_navigation_screen.dart';
 
 class AppointmentBookingScreen extends StatefulWidget {
   final ServiceModel service;
@@ -31,45 +31,202 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
   }
 
   void _showSuccessDialog(BuildContext context, Map<String, dynamic> confirmation) {
+    final bookingDate = confirmation['date'] ?? confirmation['appointment_date'] ?? '';
+    final bookingTime = confirmation['time_slot'] ?? '';
+
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        contentPadding: const EdgeInsets.all(24),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: const BoxDecoration(
-                color: Color(0xFFE8F5E9),
-                shape: BoxShape.circle,
+      barrierColor: Colors.black54,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        backgroundColor: Colors.white,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        elevation: 20,
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 1. Layered Glowing Success Badge
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFF0FDF4),
+                  border: Border.all(color: const Color(0xFFDCFCE7), width: 2),
+                ),
+                child: Center(
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFFDCFCE7),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF16A34A).withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.check_rounded,
+                        color: Color(0xFF16A34A),
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              child: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 40),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Booking Confirmed!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Your appointment for ${widget.service.name} has been placed successfully.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 20),
-            AppButton(
-              text: 'View My Bookings',
-              buttonColor: AppColors.primaryColor,
-              onTap: () {
-                Navigator.pop(ctx);
-                Get.off(() => const MyBookingsScreen());
-              },
-            ),
-          ],
+              const SizedBox(height: 18),
+
+              // 2. Centered Headline
+              const Text(
+                'Booking Confirmed! 🎉',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 6),
+
+              // 3. Subtitle
+              const Text(
+                'Your appointment has been successfully scheduled with the service provider.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+
+              // 4. Booking Summary Capsule
+              Container(
+                margin: const EdgeInsets.only(top: 18, bottom: 22),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        widget.service.imageUrl,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 44,
+                          height: 44,
+                          color: const Color(0xFFE2E8F0),
+                          child: const Icon(Icons.design_services_outlined, size: 20, color: AppColors.textMuted),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.service.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            bookingDate.isNotEmpty && bookingTime.isNotEmpty
+                                ? '$bookingDate • $bookingTime'
+                                : widget.service.category,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '\$${widget.service.price.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 5. Navigate to Bookings tab on BottomNavigationBar
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    gradient: AppColors.primaryGradient,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryColor.withOpacity(0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Get.offAll(() => const MainNavigationScreen(initialIndex: 1));
+                    },
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_month_rounded, size: 18, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          'View My Bookings',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -108,6 +265,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
             appBar: AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
+              centerTitle: true,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 20),
                 onPressed: () => Get.back(),

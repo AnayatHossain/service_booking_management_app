@@ -10,13 +10,18 @@ import '../../ai_assistant/screens/ai_assistant_screen.dart';
 import '../../profile/screens/profile_details_screen.dart';
 
 class MainNavigationScreen extends StatelessWidget {
-  const MainNavigationScreen({super.key});
+  final int initialIndex;
+
+  const MainNavigationScreen({
+    super.key,
+    this.initialIndex = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => NavigationCubit()),
+        BlocProvider(create: (_) => NavigationCubit(initialIndex)),
         BlocProvider(create: (_) => HomeBloc()..add(const HomeDataRequested())),
       ],
       child: BlocBuilder<NavigationCubit, int>(
