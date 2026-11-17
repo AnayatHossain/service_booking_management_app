@@ -247,7 +247,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                                     item['name'] ?? '',
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
                                     maxLines: 1,
-                                    overflow: TextEditingOverflow.ellipsis,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 6),
                                   Row(
