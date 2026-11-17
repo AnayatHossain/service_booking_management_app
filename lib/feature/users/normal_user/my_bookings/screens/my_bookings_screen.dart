@@ -32,104 +32,231 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   void _confirmCancel(BuildContext context, BookingModel booking, MyBookingsBloc bloc) {
     showDialog(
       context: context,
+      barrierColor: Colors.black54,
       builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         backgroundColor: Colors.white,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        elevation: 20,
+        clipBehavior: Clip.antiAlias,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 1. Centered Soft-Red Icon Badge
+              // 1. Layered Double-Ring Glowing Destructive Badge
               Container(
-                width: 60,
-                height: 60,
+                width: 68,
+                height: 68,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
                   shape: BoxShape.circle,
+                  color: const Color(0xFFFEF2F2),
+                  border: Border.all(color: const Color(0xFFFEE2E2), width: 2),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.warning_amber_rounded,
-                    color: AppColors.error,
-                    size: 32,
+                child: Center(
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFFFEE2E2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFEF4444).withOpacity(0.18),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.event_busy_rounded,
+                        color: Color(0xFFDC2626),
+                        size: 26,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              // 2. Centered Title
+              // 2. Centered Headline
               const Text(
-                'Cancel Booking',
+                'Cancel Appointment?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  fontSize: 18,
+                  fontSize: 19,
                   color: AppColors.textPrimary,
-                  letterSpacing: -0.3,
+                  letterSpacing: -0.4,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
 
-              // 3. Minimalist Centered Message
+              // 3. Subtitle / Guidance
               const Text(
-                'Are you sure you want to cancel this appointment? This action cannot be undone.',
+                'Are you sure? This booking will be removed from your schedule and cannot be recovered.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
-                  height: 1.45,
+                  height: 1.4,
                 ),
               ),
-              const SizedBox(height: 24),
 
-              // 4. Full-Width Balanced Action Buttons
+              // 4. Contextual Booking Summary Capsule
+              Container(
+                margin: const EdgeInsets.only(top: 18, bottom: 22),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        booking.serviceImage,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 44,
+                          height: 44,
+                          color: const Color(0xFFE2E8F0),
+                          child: const Icon(
+                            Icons.cleaning_services_rounded,
+                            size: 20,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            booking.serviceName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              const Icon(Icons.schedule_rounded, size: 12, color: AppColors.textSecondary),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${booking.date} • ${booking.timeSlot}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '\$${booking.servicePrice.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 5. Full-Width Balanced Action Buttons
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(color: AppColors.strokeColor),
-                        backgroundColor: const Color(0xFFF8FAFC),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      height: 46,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: const Color(0xFFF1F5F9),
+                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: EdgeInsets.zero,
                         ),
-                        elevation: 0,
-                      ),
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text(
-                        'Keep Booking',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text(
+                          'Keep Booking',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        backgroundColor: AppColors.error,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      height: 46,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFDC2626).withOpacity(0.35),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        bloc.add(MyBookingsCancelRequested(booking.id));
-                      },
-                      child: const Text(
-                        'Confirm Cancel',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            bloc.add(MyBookingsCancelRequested(booking.id));
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.close_rounded, size: 16, color: Colors.white),
+                              SizedBox(width: 6),
+                              Text(
+                                'Yes, Cancel',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
