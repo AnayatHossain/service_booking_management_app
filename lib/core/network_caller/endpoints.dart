@@ -43,6 +43,10 @@ class Urls {
   // AI Assistant endpoints
   static const String aiChat = 'ai/chat';
   static const String aiPrompts = 'ai/prompts';
+  static const String aiSessions = 'ai/sessions';
+  static String aiSessionDetails(String id) => 'ai/sessions/$id';
+  static String aiDeleteSession(String id) => 'ai/sessions/$id';
+  static const String aiClearSessions = 'ai/sessions';
 
   // Notifications endpoints
   static const String notifications = 'notifications';
