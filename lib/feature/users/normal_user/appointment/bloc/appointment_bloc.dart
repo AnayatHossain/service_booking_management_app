@@ -130,6 +130,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         apiAuthorization: token != null ? ApiAuthorization.bearer(token) : null,
         apiBody: ApiBody.json({
           'service_id': service.id,
+          'date': _formattedDate,
           'appointment_date': _formattedDate,
           'time_slot': state.selectedTimeSlot,
           'customer_notes': event.notes.trim().isNotEmpty ? event.notes.trim() : null,
