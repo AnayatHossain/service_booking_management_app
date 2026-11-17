@@ -7,7 +7,7 @@ import '../../home_screen/bloc/home_event.dart';
 import '../../home_screen/screens/home_screen.dart';
 import '../../my_bookings/screens/my_bookings_screen.dart';
 import '../../ai_assistant/screens/ai_assistant_screen.dart';
-import '../../profile/screens/profile_screen.dart';
+import '../../profile/screens/profile_details_screen.dart';
 
 class MainNavigationScreen extends StatelessWidget {
   const MainNavigationScreen({super.key});
@@ -25,7 +25,7 @@ class MainNavigationScreen extends StatelessWidget {
             HomeScreen(),
             MyBookingsScreen(),
             AiAssistantScreen(),
-            ProfileScreen(),
+            ProfileDetailsScreen(),
           ];
 
           return Scaffold(

@@ -27,13 +27,65 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<void> _loadUserDataAndServices(Emitter<HomeState> emit) async {
-    // 1. Load User Info from SharedPreferences
-    final name = await SharedPreferencesHelper.getUserName() ?? 'Alex Johnson';
-    final email = await SharedPreferencesHelper.getUserEmail() ?? 'testuser@example.com';
-    final avatar = await SharedPreferencesHelper.getUserAvatar();
+    // 1. Initial cached fallback from SharedPreferences
+    String name = await SharedPreferencesHelper.getUserName() ?? 'Customer';
+    String email = await SharedPreferencesHelper.getUserEmail() ?? '';
+    String? avatar = await SharedPreferencesHelper.getUserAvatar();
+    int unreadCount = 0;
+
+    final token = await SharedPreferencesHelper.getAccessToken();
+    final authHeaders = token != null ? {'Authorization': 'Bearer $token'} : null;
+
+    if (token != null) {
+      // 2. Fetch live user profile from backend
+      try {
+        final profileApi = FlutterApiCraft(
+          baseUrl: Urls.baseUrl,
+          path: Urls.profile,
+          apiType: ApiType.get,
+          apiHeaders: authHeaders,
+          enableLoading: false,
+          enableApiSuccessResponseGetSnackBar: false,
+          enableApiErrorResponseGetSnackBar: false,
+        );
+        final profileRes = await profileApi.call();
+        if (profileRes.isSuccess && profileRes.data is Map && profileRes.data['data'] != null) {
+          final uData = profileRes.data['data'];
+          if (uData['name'] != null && uData['name'].toString().isNotEmpty) {
+            name = uData['name'].toString();
+            await SharedPreferencesHelper.setUserName(name);
+          }
+          if (uData['email'] != null && uData['email'].toString().isNotEmpty) {
+            email = uData['email'].toString();
+            await SharedPreferencesHelper.setUserEmail(email);
+          }
+          if (uData['avatar_url'] != null) {
+            avatar = uData['avatar_url'].toString();
+            await SharedPreferencesHelper.setUserAvatar(avatar);
+          }
+        }
+      } catch (_) {}
+
+      // 3. Fetch unread notifications count
+      try {
+        final notifApi = FlutterApiCraft(
+          baseUrl: Urls.baseUrl,
+          path: Urls.unreadNotificationsCount,
+          apiType: ApiType.get,
+          apiHeaders: authHeaders,
+          enableLoading: false,
+          enableApiSuccessResponseGetSnackBar: false,
+          enableApiErrorResponseGetSnackBar: false,
+        );
+        final notifRes = await notifApi.call();
+        if (notifRes.isSuccess && notifRes.data is Map && notifRes.data['data'] != null) {
+          unreadCount = notifRes.data['data']['unread_count'] ?? 0;
+        }
+      } catch (_) {}
+    }
 
     try {
-      // 2. Fetch categories
+      // 4. Fetch categories
       List<String> catList = ['All'];
       final catApi = FlutterApiCraft(
         baseUrl: Urls.baseUrl,
@@ -54,7 +106,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       }
 
-      // 3. Fetch all services
+      // 5. Fetch all services
       final servicesApi = FlutterApiCraft(
         baseUrl: Urls.baseUrl,
         path: Urls.services,
@@ -83,6 +135,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         userName: name,
         userEmail: email,
         userAvatar: avatar,
+        unreadNotificationsCount: unreadCount,
         categories: catList,
         allServices: services,
         featuredServices: featured,

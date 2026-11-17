@@ -36,7 +36,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       final api = FlutterApiCraft(
         baseUrl: Urls.baseUrl,
-        path: Urls.me,
+        path: Urls.profile,
         apiType: ApiType.get,
         apiAuthorization: ApiAuthorization.bearer(token),
         enableLoading: false,
@@ -52,6 +52,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final updatedEmail = u['email'] ?? email;
         final updatedPhone = u['phone'] ?? phone;
         final updatedAvatar = u['avatar_url'] ?? avatar;
+        final role = u['role'] ?? 'Customer';
+        final createdAt = u['created_at'];
+        final total = u['total_bookings'] ?? 0;
+        final active = u['active_bookings'] ?? 0;
+        final completed = u['completed_bookings'] ?? 0;
+        final cancelled = u['cancelled_bookings'] ?? 0;
 
         final token = await SharedPreferencesHelper.getAccessToken() ?? '';
         final userId = await SharedPreferencesHelper.getUserId() ?? '';
@@ -65,10 +71,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         );
 
         emit(state.copyWith(
+          status: ProfileStatus.success,
           name: updatedName,
           email: updatedEmail,
           phone: updatedPhone,
           avatarUrl: updatedAvatar,
+          role: role,
+          createdAt: createdAt,
+          totalBookings: total,
+          activeBookings: active,
+          completedBookings: completed,
+          cancelledBookings: cancelled,
         ));
       }
     } catch (_) {}

@@ -8,6 +8,12 @@ class ProfileState extends Equatable {
   final String email;
   final String? phone;
   final String? avatarUrl;
+  final int totalBookings;
+  final int activeBookings;
+  final int completedBookings;
+  final int cancelledBookings;
+  final String role;
+  final String? createdAt;
   final bool isUpdating;
   final bool isChangingPassword;
   final bool isLoggedOut;
@@ -20,6 +26,12 @@ class ProfileState extends Equatable {
     this.email = '',
     this.phone,
     this.avatarUrl,
+    this.totalBookings = 0,
+    this.activeBookings = 0,
+    this.completedBookings = 0,
+    this.cancelledBookings = 0,
+    this.role = 'Customer',
+    this.createdAt,
     this.isUpdating = false,
     this.isChangingPassword = false,
     this.isLoggedOut = false,
@@ -33,6 +45,12 @@ class ProfileState extends Equatable {
     String? email,
     String? phone,
     String? avatarUrl,
+    int? totalBookings,
+    int? activeBookings,
+    int? completedBookings,
+    int? cancelledBookings,
+    String? role,
+    String? createdAt,
     bool? isUpdating,
     bool? isChangingPassword,
     bool? isLoggedOut,
@@ -45,6 +63,12 @@ class ProfileState extends Equatable {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      totalBookings: totalBookings ?? this.totalBookings,
+      activeBookings: activeBookings ?? this.activeBookings,
+      completedBookings: completedBookings ?? this.completedBookings,
+      cancelledBookings: cancelledBookings ?? this.cancelledBookings,
+      role: role ?? this.role,
+      createdAt: createdAt ?? this.createdAt,
       isUpdating: isUpdating ?? this.isUpdating,
       isChangingPassword: isChangingPassword ?? this.isChangingPassword,
       isLoggedOut: isLoggedOut ?? this.isLoggedOut,
@@ -60,6 +84,12 @@ class ProfileState extends Equatable {
         email,
         phone,
         avatarUrl,
+        totalBookings,
+        activeBookings,
+        completedBookings,
+        cancelledBookings,
+        role,
+        createdAt,
         isUpdating,
         isChangingPassword,
         isLoggedOut,

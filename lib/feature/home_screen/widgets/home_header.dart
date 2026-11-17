@@ -6,6 +6,7 @@ class HomeHeader extends StatelessWidget {
   final String userName;
   final String userEmail;
   final String? avatarUrl;
+  final int unreadCount;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
 
@@ -13,6 +14,7 @@ class HomeHeader extends StatelessWidget {
     required this.userName,
     required this.userEmail,
     this.avatarUrl,
+    this.unreadCount = 0,
     this.onNotificationTap,
     this.onProfileTap,
     super.key,
@@ -105,19 +107,13 @@ class HomeHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        _greeting,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppColors.textMuted),
-                    ],
+                  Text(
+                    _greeting,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -162,18 +158,19 @@ class HomeHeader extends StatelessWidget {
                     size: 22,
                     color: AppColors.textPrimary,
                   ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.error,
-                        shape: BoxShape.circle,
+                  if (unreadCount > 0)
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppColors.error,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

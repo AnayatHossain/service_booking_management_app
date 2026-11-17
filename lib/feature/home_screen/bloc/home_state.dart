@@ -9,6 +9,7 @@ class HomeState extends Equatable {
   final String userName;
   final String userEmail;
   final String? userAvatar;
+  final int unreadNotificationsCount;
   final List<String> categories;
   final String selectedCategory;
   final ServiceSortOption sortOption;
@@ -23,6 +24,7 @@ class HomeState extends Equatable {
     this.userName = 'Alex Johnson',
     this.userEmail = 'testuser@example.com',
     this.userAvatar,
+    this.unreadNotificationsCount = 0,
     this.categories = const ['All'],
     this.selectedCategory = 'All',
     this.sortOption = ServiceSortOption.defaultSort,
@@ -38,6 +40,7 @@ class HomeState extends Equatable {
     String? userName,
     String? userEmail,
     String? userAvatar,
+    int? unreadNotificationsCount,
     List<String>? categories,
     String? selectedCategory,
     ServiceSortOption? sortOption,
@@ -52,6 +55,7 @@ class HomeState extends Equatable {
       userName: userName ?? this.userName,
       userEmail: userEmail ?? this.userEmail,
       userAvatar: userAvatar ?? this.userAvatar,
+      unreadNotificationsCount: unreadNotificationsCount ?? this.unreadNotificationsCount,
       categories: categories ?? this.categories,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       sortOption: sortOption ?? this.sortOption,
@@ -69,6 +73,7 @@ class HomeState extends Equatable {
         userName,
         userEmail,
         userAvatar,
+        unreadNotificationsCount,
         categories,
         selectedCategory,
         sortOption,

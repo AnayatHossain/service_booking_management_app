@@ -8,6 +8,7 @@ import '../../../../core/global_widegts/empty_screen_widget.dart';
 import '../../appointment/screen/appointment_screen.dart';
 import '../../notifications/screens/notification_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../../profile/screens/profile_details_screen.dart';
 import '../../service_details/screens/service_details_screen.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
@@ -78,11 +79,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   userName: state.userName,
                   userEmail: state.userEmail,
                   avatarUrl: state.userAvatar,
-                  onProfileTap: () {
-                    Get.to(() => const ProfileScreen());
+                  unreadCount: state.unreadNotificationsCount,
+                  onProfileTap: () async {
+                    await Get.to(() => const ProfileDetailsScreen());
+                    if (context.mounted) {
+                      context.read<HomeBloc>().add(const HomeRefreshed());
+                    }
                   },
-                  onNotificationTap: () {
-                    Get.to(() => const NotificationScreen());
+                  onNotificationTap: () async {
+                    await Get.to(() => const NotificationScreen());
+                    if (context.mounted) {
+                      context.read<HomeBloc>().add(const HomeRefreshed());
+                    }
                   },
                 ),
 

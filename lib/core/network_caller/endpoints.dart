@@ -45,6 +45,7 @@ class Urls {
 
   // Notifications endpoints
   static const String notifications = 'notifications';
+  static const String unreadNotificationsCount = 'notifications/unread-count';
   static String markNotificationRead(String id) => 'notifications/$id/read';
   static const String markAllNotificationsRead = 'notifications/read-all';
 
