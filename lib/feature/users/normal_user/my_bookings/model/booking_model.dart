@@ -13,6 +13,9 @@ class BookingModel {
   final int durationMinutes;
   final String status;
   final String? customerNotes;
+  final bool isRated;
+  final double? rating;
+  final String? review;
   final String createdAt;
 
   BookingModel({
@@ -30,6 +33,9 @@ class BookingModel {
     required this.durationMinutes,
     required this.status,
     this.customerNotes,
+    this.isRated = false,
+    this.rating,
+    this.review,
     required this.createdAt,
   });
 
@@ -37,7 +43,8 @@ class BookingModel {
   bool get isConfirmed => status.toLowerCase() == 'confirmed';
   bool get isCancelled => status.toLowerCase() == 'cancelled';
   bool get isCompleted => status.toLowerCase() == 'completed';
-  bool get canBeCancelled => !isCancelled && !isCompleted;
+  bool get canBeCancelled => (isPending || isConfirmed);
+  bool get canBeRated => isCompleted && !isRated;
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
@@ -55,6 +62,9 @@ class BookingModel {
       durationMinutes: json['duration_minutes'] ?? 60,
       status: json['status'] ?? 'Pending',
       customerNotes: json['customer_notes'],
+      isRated: json['is_rated'] == true,
+      rating: (json['rating'] is num) ? (json['rating'] as num).toDouble() : null,
+      review: json['review'],
       createdAt: json['created_at'] ?? '',
     );
   }

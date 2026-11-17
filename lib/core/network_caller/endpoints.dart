@@ -38,6 +38,7 @@ class Urls {
   static const String checkAvailability = 'appointments/availability';
   static String appointmentDetails(String id) => 'appointments/$id';
   static String cancelAppointment(String id) => 'appointments/$id/cancel';
+  static String rateAppointment(String id) => 'appointments/$id/rate';
 
   // AI Assistant endpoints
   static const String aiChat = 'ai/chat';

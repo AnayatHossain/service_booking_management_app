@@ -50,6 +50,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
           onPressed: () => Get.back(),
@@ -294,6 +295,39 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
+
+                if (booking.isCompleted) ...[
+                  const Text(
+                    'Service Review & Feedback',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.strokeColor.withOpacity(0.8)),
+                    ),
+                    child: booking.isRated
+                        ? Row(
+                            children: [
+                              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 24),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${booking.rating?.toStringAsFixed(1) ?? '5.0'} / 5.0 Rating Submitted',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                              ),
+                            ],
+                          )
+                        : const Text(
+                            'You can rate this service directly from the appointments list.',
+                            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
 
                 // 5. Cancel Booking Action
                 if (booking.canBeCancelled && widget.onCancelBooking != null)

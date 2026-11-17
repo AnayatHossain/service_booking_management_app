@@ -26,3 +26,17 @@ class MyBookingsCancelRequested extends MyBookingsEvent {
   @override
   List<Object?> get props => [appointmentId];
 }
+
+class MyBookingsRateRequested extends MyBookingsEvent {
+  final String appointmentId;
+  final double rating;
+  final String? review;
+  const MyBookingsRateRequested({
+    required this.appointmentId,
+    required this.rating,
+    this.review,
+  });
+
+  @override
+  List<Object?> get props => [appointmentId, rating, review];
+}

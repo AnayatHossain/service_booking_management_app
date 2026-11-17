@@ -13,15 +13,15 @@ class BookingFilterTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = ['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'];
+    final tabs = const ['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'];
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: const EdgeInsets.fromLTRB(16, 6, 16, 10),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.bgColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.strokeColor),
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.strokeColor.withOpacity(0.6)),
       ),
       child: Row(
         children: List.generate(tabs.length, (index) {
@@ -33,15 +33,16 @@ class BookingFilterTabs extends StatelessWidget {
               onTap: () => onTabSelected(index),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primaryColor : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
+                  color: isSelected ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: AppColors.primaryColor.withOpacity(0.2),
-                            blurRadius: 4,
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
                         ]
@@ -51,9 +52,10 @@ class BookingFilterTabs extends StatelessWidget {
                   child: Text(
                     tab,
                     style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      color: isSelected ? AppColors.primaryColor : AppColors.textSecondary,
+                      letterSpacing: -0.2,
                     ),
                   ),
                 ),

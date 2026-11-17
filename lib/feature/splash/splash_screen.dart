@@ -291,16 +291,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'v1.0.0 • Premium Platform',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.45),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
                 ],
               ),
             ),
