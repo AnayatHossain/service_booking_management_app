@@ -130,10 +130,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             appBar: AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
-                onPressed: () => Get.back(),
-              ),
+              centerTitle: true,
+              automaticallyImplyLeading: false,
               title: const Text(
                 'Create Account',
                 style: TextStyle(
@@ -152,18 +150,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     // 1. Role Toggle Tabs (Customer vs Service Provider)
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             child: _buildRoleTab(
                               title: 'Customer',
-                              subtitle: 'Book services',
-                              icon: Icons.person_rounded,
                               isSelected: _currentRole == 'customer',
                               onTap: () {
                                 setState(() => _currentRole = 'customer');
@@ -171,12 +167,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 6),
                           Expanded(
                             child: _buildRoleTab(
-                              title: 'Provider',
-                              subtitle: 'Offer services',
-                              icon: Icons.business_center_rounded,
+                              title: 'Service Provider',
                               isSelected: _currentRole == 'provider',
                               onTap: () {
                                 setState(() => _currentRole = 'provider');
@@ -242,7 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     const SizedBox(height: 8),
                     _buildInputField(
                       controller: _passwordController,
-                      hintText: 'Create a strong password (min 6 chars)',
+                      hintText: 'Create a strong password',
                       prefixIcon: Icons.lock_outline_rounded,
                       obscureText: !state.isPasswordVisible,
                       onChanged: (val) {
@@ -397,21 +390,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     height: 22,
                                     child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                                   )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        _currentRole == 'provider' ? 'Register as Provider' : 'Create Customer Account',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.2,
-                                        ),
+                                : Center(
+                                    child: Text(
+                                      _currentRole == 'provider' ? 'Register as Provider' : 'Create Customer Account',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.2,
                                       ),
-                                      const SizedBox(width: 8),
-                                      const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
-                                    ],
+                                    ),
                                   ),
                           ),
                         ),
@@ -455,68 +443,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget _buildRoleTab({
     required String title,
-    required String subtitle,
-    required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(11),
           boxShadow: isSelected
               ? [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.06),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ]
               : null,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primaryLight : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: isSelected ? AppColors.primaryColor : AppColors.textMuted,
-              ),
+        child: Center(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected ? AppColors.primaryColor : AppColors.textSecondary,
+              letterSpacing: 0.2,
             ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isSelected ? AppColors.primaryColor : AppColors.textMuted,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
