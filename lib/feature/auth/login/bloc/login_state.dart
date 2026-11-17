@@ -10,6 +10,7 @@ class LoginState extends Equatable {
   final bool rememberMe;
   final String? errorMessage;
   final String? userName;
+  final String? userRole;
 
   const LoginState({
     this.status = LoginStatus.initial,
@@ -19,6 +20,7 @@ class LoginState extends Equatable {
     this.rememberMe = false,
     this.errorMessage,
     this.userName,
+    this.userRole,
   });
 
   LoginState copyWith({
@@ -29,6 +31,7 @@ class LoginState extends Equatable {
     bool? rememberMe,
     String? errorMessage,
     String? userName,
+    String? userRole,
   }) {
     return LoginState(
       status: status ?? this.status,
@@ -38,6 +41,7 @@ class LoginState extends Equatable {
       rememberMe: rememberMe ?? this.rememberMe,
       errorMessage: errorMessage,
       userName: userName ?? this.userName,
+      userRole: userRole ?? this.userRole,
     );
   }
 
@@ -50,5 +54,6 @@ class LoginState extends Equatable {
         rememberMe,
         errorMessage,
         userName,
+        userRole,
       ];
 }

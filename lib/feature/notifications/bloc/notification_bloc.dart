@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_api_craft/flutter_api_craft.dart';
-import '../../../../core/network_caller/endpoints.dart';
+import 'package:service_booking_management_app/core/network_caller/endpoints.dart';
 import '../model/notification_model.dart';
 import 'notification_event.dart';
 import 'notification_state.dart';

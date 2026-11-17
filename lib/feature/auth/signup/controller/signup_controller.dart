@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_api_craft/flutter_api_craft.dart';
-import '../../../../core/network_caller/endpoints.dart';
-import '../../../../core/services/shared_preferences_helper.dart';
-import '../../../navigation/screen/main_navigation_screen.dart';
+import 'package:service_booking_management_app/core/network_caller/endpoints.dart';
+import 'package:service_booking_management_app/core/services/shared_preferences_helper.dart';
+import 'package:service_booking_management_app/feature/users/normal_user/navigation/screen/main_navigation_screen.dart';
 
 class SignUpController extends GetxController {
   final nameController = TextEditingController();

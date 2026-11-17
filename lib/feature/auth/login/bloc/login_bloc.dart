@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_api_craft/flutter_api_craft.dart';
-import '../../../../core/network_caller/endpoints.dart';
-import '../../../../core/services/shared_preferences_helper.dart';
+import 'package:service_booking_management_app/core/network_caller/endpoints.dart';
+import 'package:service_booking_management_app/core/services/shared_preferences_helper.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 
@@ -13,6 +13,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginPasswordVisibilityToggled>(_onTogglePasswordVisibility);
     on<LoginRememberMeToggled>(_onToggleRememberMe);
     on<LoginPrefillDemo>(_onPrefillDemo);
+    on<LoginPrefillProviderDemo>(_onPrefillProviderDemo);
     on<LoginSubmitted>(_onSubmitted);
 
     add(const LoginInitRequested());
@@ -53,6 +54,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   void _onPrefillDemo(LoginPrefillDemo event, Emitter<LoginState> emit) {
     emit(state.copyWith(
       email: 'testuser@example.com',
+      password: 'password123',
+    ));
+  }
+
+  void _onPrefillProviderDemo(LoginPrefillProviderDemo event, Emitter<LoginState> emit) {
+    emit(state.copyWith(
+      email: 'provider@example.com',
       password: 'password123',
     ));
   }
@@ -110,6 +118,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           final data = resData['data'];
           final token = data['access_token'];
           final user = data['user'];
+          final role = (user['role'] ?? 'customer').toString();
+          final instName = user['institution_name']?.toString();
 
           await SharedPreferencesHelper.saveUserData(
             token: token ?? '',
@@ -118,11 +128,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             email: user['email'] ?? '',
             phone: user['phone'],
             avatarUrl: user['avatar_url'],
+            role: role,
+            institutionName: instName,
           );
 
           emit(state.copyWith(
             status: LoginStatus.success,
             userName: user['name'] ?? 'User',
+            userRole: role,
           ));
         } else {
           final msg = (resData is Map && resData['message'] != null)

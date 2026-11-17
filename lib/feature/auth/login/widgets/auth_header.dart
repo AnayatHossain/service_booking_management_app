@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_colors.dart';
 
 class AuthHeader extends StatelessWidget {
   final String title;

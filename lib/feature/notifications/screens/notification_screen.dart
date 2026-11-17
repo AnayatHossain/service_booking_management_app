@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import '../../../../core/const/app_colors.dart';
-import '../../../../core/global_widegts/empty_screen_widget.dart';
+import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/global_widegts/empty_screen_widget.dart';
 import '../bloc/notification_bloc.dart';
 import '../bloc/notification_event.dart';
 import '../bloc/notification_state.dart';

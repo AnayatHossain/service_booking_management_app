@@ -8,6 +8,8 @@ class SharedPreferencesHelper {
   static const String _emailKey = 'email';
   static const String _phoneKey = 'phone';
   static const String _avatarUrlKey = 'avatarUrl';
+  static const String _roleKey = 'role';
+  static const String _institutionNameKey = 'institutionName';
   static const String _rememberMeKey = 'rememberMe';
 
   // Save full user session
@@ -18,6 +20,8 @@ class SharedPreferencesHelper {
     required String email,
     String? phone,
     String? avatarUrl,
+    String? role,
+    String? institutionName,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_accessTokenKey, token);
@@ -26,6 +30,8 @@ class SharedPreferencesHelper {
     await prefs.setString(_emailKey, email);
     if (phone != null) await prefs.setString(_phoneKey, phone);
     if (avatarUrl != null) await prefs.setString(_avatarUrlKey, avatarUrl);
+    if (role != null) await prefs.setString(_roleKey, role);
+    if (institutionName != null) await prefs.setString(_institutionNameKey, institutionName);
     await prefs.setBool(_isLoginKey, true);
   }
 
@@ -69,11 +75,54 @@ class SharedPreferencesHelper {
     return getAvatarUrl();
   }
 
+  static Future<void> setUserName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userNameKey, name);
+  }
+
+  static Future<void> setUserEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_emailKey, email);
+  }
+
+  static Future<void> setUserAvatar(String? avatarUrl) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (avatarUrl != null) {
+      await prefs.setString(_avatarUrlKey, avatarUrl);
+    } else {
+      await prefs.remove(_avatarUrlKey);
+    }
+  }
+
   static Future<void> updateProfileInfo({required String name, String? phone, String? avatarUrl}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNameKey, name);
     if (phone != null) await prefs.setString(_phoneKey, phone);
     if (avatarUrl != null) await prefs.setString(_avatarUrlKey, avatarUrl);
+  }
+
+  static Future<String?> getUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_roleKey) ?? 'customer';
+  }
+
+  static Future<void> setUserRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_roleKey, role);
+  }
+
+  static Future<String?> getInstitutionName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_institutionNameKey);
+  }
+
+  static Future<void> setInstitutionName(String? name) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (name != null && name.isNotEmpty) {
+      await prefs.setString(_institutionNameKey, name);
+    } else {
+      await prefs.remove(_institutionNameKey);
+    }
   }
 
   static Future<void> setRememberMe(bool value) async {

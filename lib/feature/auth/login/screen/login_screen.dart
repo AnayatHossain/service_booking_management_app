@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import '../../../../core/const/app_colors.dart';
-import '../../../../core/global_widegts/app_button.dart';
-import '../../../../core/global_widegts/custom_text_field.dart';
-import '../../../navigation/screen/main_navigation_screen.dart';
+
+import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/feature/users/normal_user/navigation/screen/main_navigation_screen.dart';
+import '../../../users/service_provider/navigation/screens/provider_navigation_screen.dart';
 import '../bloc/login_bloc.dart';
 import '../bloc/login_event.dart';
 import '../bloc/login_state.dart';
@@ -43,173 +43,330 @@ class _LoginScreenState extends State<LoginScreen> {
 
           if (state.status == LoginStatus.success) {
             Get.snackbar(
-              'Success',
-              'Welcome back, ${state.userName}!',
+              'Welcome Back',
+              'Successfully logged in as ${state.userName ?? 'User'}!',
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.green.shade100,
-              colorText: Colors.green.shade900,
+              backgroundColor: const Color(0xFFE8F5E9),
+              colorText: const Color(0xFF1B5E20),
+              icon: const Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32)),
+              margin: const EdgeInsets.all(16),
+              borderRadius: 14,
             );
-            Get.offAll(() => const MainNavigationScreen());
+
+            if (state.userRole == 'provider') {
+              Get.offAll(() => const ProviderNavigationScreen());
+            } else {
+              Get.offAll(() => const MainNavigationScreen());
+            }
           } else if (state.status == LoginStatus.failure && state.errorMessage != null) {
             Get.snackbar(
-              'Login Error',
+              'Sign In Failed',
               state.errorMessage!,
               snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.red.shade100,
-              colorText: Colors.red.shade900,
+              backgroundColor: const Color(0xFFFFEBEE),
+              colorText: const Color(0xFFB71C1C),
+              icon: const Icon(Icons.error_outline_rounded, color: AppColors.error),
+              margin: const EdgeInsets.all(16),
+              borderRadius: 14,
             );
           }
         },
         builder: (context, state) {
+          final bloc = context.read<LoginBloc>();
+
           return Scaffold(
-            backgroundColor: AppColors.bgColor,
+            backgroundColor: Colors.white,
             body: SafeArea(
               child: Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // App Icon
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.calendar_month_rounded,
-                          color: AppColors.primaryColor,
-                          size: 30,
+                      // 1. Gorgeous Top Branded Emblem
+                      Center(
+                        child: Container(
+                          width: 68,
+                          height: 68,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(22),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryColor.withOpacity(0.35),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.home_repair_service_rounded,
+                            color: Colors.white,
+                            size: 34,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
 
-                      // Title & Subtitle
-                      const Text(
-                        'Welcome Back!',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                      // 2. Headings
+                      const Center(
+                        child: Text(
+                          'Welcome Back!',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Sign in to manage your appointments and explore quality services.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                          height: 1.4,
+                      const SizedBox(height: 6),
+                      Center(
+                        child: Text(
+                          'Sign in to access your appointments and services.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary.withOpacity(0.9),
+                            height: 1.4,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 32),
 
-                      // Email Field
+                      // 3. Email Input Field
                       const Text(
                         'Email Address',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 8),
-                      CustomTextField(
+                      _buildInputField(
                         controller: _emailController,
-                        hintText: 'e.g. john@example.com',
-                        prefixIcon: Icons.email_outlined,
+                        hintText: 'name@example.com',
+                        prefixIcon: Icons.alternate_email_rounded,
                         keyboardType: TextInputType.emailAddress,
+                        onChanged: (val) => bloc.add(LoginEmailChanged(val)),
                       ),
                       const SizedBox(height: 18),
 
-                      // Password Field
+                      // 4. Password Input Field
                       const Text(
                         'Password',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 8),
-                      CustomTextField(
+                      _buildInputField(
                         controller: _passwordController,
                         hintText: 'Enter your password',
                         prefixIcon: Icons.lock_outline_rounded,
                         obscureText: !state.isPasswordVisible,
-                        suffixIcon: state.isPasswordVisible
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        onSuffixTap: () {
-                          context.read<LoginBloc>().add(const LoginPasswordVisibilityToggled());
-                        },
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            state.isPasswordVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            color: AppColors.textMuted,
+                            size: 20,
+                          ),
+                          onPressed: () => bloc.add(const LoginPasswordVisibilityToggled()),
+                        ),
+                        onChanged: (val) => bloc.add(LoginPasswordChanged(val)),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
 
-                      // Remember Me
+                      // 5. Remember Me & Forgot Password
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: Checkbox(
-                              value: state.rememberMe,
-                              activeColor: AppColors.primaryColor,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                              onChanged: (_) {
-                                context.read<LoginBloc>().add(const LoginRememberMeToggled());
-                              },
+                          GestureDetector(
+                            onTap: () => bloc.add(const LoginRememberMeToggled()),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: Checkbox(
+                                    value: state.rememberMe,
+                                    onChanged: (_) => bloc.add(const LoginRememberMeToggled()),
+                                    activeColor: AppColors.primaryColor,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Remember me',
+                                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Text('Remember me', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                          TextButton(
+                            onPressed: () {
+                              Get.snackbar(
+                                'Password Reset',
+                                'Password reset link sent to registered email.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: const Color(0xFFE3F2FD),
+                                colorText: AppColors.primaryColor,
+                              );
+                            },
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.primaryColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 24),
 
-                      // Sign In Button
-                      AppButton(
-                        text: 'Sign In',
-                        buttonColor: AppColors.primaryColor,
-                        isLoading: state.status == LoginStatus.loading,
-                        onTap: state.status == LoginStatus.loading
-                            ? null
-                            : () {
-                                context.read<LoginBloc>().add(LoginSubmitted(
+                      // 6. Sign In Primary Button
+                      Container(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF1976D2), Color(0xFF1565C0)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryColor.withOpacity(0.35),
+                              blurRadius: 14,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: state.status == LoginStatus.loading
+                                ? null
+                                : () {
+                                    bloc.add(LoginSubmitted(
                                       email: _emailController.text,
                                       password: _passwordController.text,
                                     ));
-                              },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Demo account shortcut
-                      Center(
-                        child: TextButton.icon(
-                          onPressed: () {
-                            context.read<LoginBloc>().add(const LoginPrefillDemo());
-                          },
-                          icon: const Icon(Icons.flash_on, size: 16, color: AppColors.accentColor),
-                          label: const Text(
-                            'Fill Demo Credentials (testuser@example.com)',
-                            style: TextStyle(color: AppColors.accentColor, fontSize: 13, fontWeight: FontWeight.w600),
+                                  },
+                            child: Center(
+                              child: state.status == LoginStatus.loading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                    )
+                                  : const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Sign In',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.2,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+                                      ],
+                                    ),
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 28),
 
-                      // Register Link
+                      // 7. Quick Demo Login Chips
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.strokeColor.withOpacity(0.8)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(Icons.bolt_rounded, size: 16, color: Color(0xFFF59E0B)),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Quick Demo Access',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      side: BorderSide(color: AppColors.primaryColor.withOpacity(0.3)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                    ),
+                                    onPressed: () => bloc.add(const LoginPrefillDemo()),
+                                    icon: const Icon(Icons.person_rounded, size: 16, color: AppColors.primaryColor),
+                                    label: const Text(
+                                      'Customer',
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      side: BorderSide(color: const Color(0xFF7B1FA2).withOpacity(0.3)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                    ),
+                                    onPressed: () => bloc.add(const LoginPrefillProviderDemo()),
+                                    icon: const Icon(Icons.business_center_rounded, size: 16, color: Color(0xFF7B1FA2)),
+                                    label: const Text(
+                                      'Provider',
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF7B1FA2)),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // 8. Sign Up Navigation Link
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text("Don't have an account? ", style: TextStyle(color: AppColors.textSecondary)),
+                          const Text(
+                            "Don't have an account? ",
+                            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                          ),
                           GestureDetector(
                             onTap: () => Get.to(() => const SignUpScreen()),
                             child: const Text(
                               'Sign Up',
-                              style: TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: AppColors.primaryColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         ],
@@ -221,6 +378,39 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData prefixIcon,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    ValueChanged<String>? onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.strokeColor),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        onChanged: onChanged,
+        style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+          prefixIcon: Icon(prefixIcon, color: AppColors.primaryColor, size: 20),
+          suffixIcon: suffixIcon,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
       ),
     );
   }

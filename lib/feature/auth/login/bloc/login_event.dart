@@ -35,6 +35,10 @@ class LoginPrefillDemo extends LoginEvent {
   const LoginPrefillDemo();
 }
 
+class LoginPrefillProviderDemo extends LoginEvent {
+  const LoginPrefillProviderDemo();
+}
+
 class LoginInitRequested extends LoginEvent {
   const LoginInitRequested();
 }

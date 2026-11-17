@@ -49,6 +49,11 @@ class Urls {
   static String markNotificationRead(String id) => 'notifications/$id/read';
   static const String markAllNotificationsRead = 'notifications/read-all';
 
+  // Provider endpoints
+  static const String providerServices = 'services/provider/my-services';
+  static const String providerBookings = 'appointments/provider/my-bookings';
+  static String providerUpdateBookingStatus(String id, String status) => 'appointments/$id/status?status=$status';
+
   // Token helper
   static Future<String?> get rawToken async {
     return await SharedPreferencesHelper.getAccessToken();
