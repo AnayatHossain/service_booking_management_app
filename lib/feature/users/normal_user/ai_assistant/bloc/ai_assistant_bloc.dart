@@ -29,6 +29,7 @@ class AIAssistantBloc extends Bloc<AIAssistantEvent, AIAssistantState> {
     on<AIDeleteSessionRequested>(_onDeleteSession);
     on<AIClearAllSessionsRequested>(_onClearAllSessions);
     on<AIClearChatRequested>(_onClearChat);
+    on<AIRefreshRequested>(_onRefresh);
 
     // Fetch sessions automatically when bloc starts
     add(const AIFetchSessionsRequested());
@@ -282,5 +283,55 @@ class AIAssistantBloc extends Bloc<AIAssistantEvent, AIAssistantState> {
       currentSessionId: null,
       currentSessionTitle: 'New Chat',
     ));
+  }
+
+  Future<void> _onRefresh(
+      AIRefreshRequested event, Emitter<AIAssistantState> emit) async {
+    try {
+      final token = await Urls.rawToken;
+      final api = FlutterApiCraft(
+        baseUrl: Urls.baseUrl,
+        path: Urls.aiSessions,
+        apiType: ApiType.get,
+        apiAuthorization: token != null ? ApiAuthorization.bearer(token) : null,
+        enableLoading: false,
+        enableApiSuccessResponseGetSnackBar: false,
+        enableApiErrorResponseGetSnackBar: false,
+      );
+      final response = await api.call();
+      if (response.isSuccess && response.data is Map && response.data['data'] != null) {
+        final list = (response.data['data'] as List<dynamic>)
+            .map((item) => AiSessionModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+        emit(state.copyWith(sessions: list));
+      }
+    } catch (_) {}
+
+    if (state.currentSessionId != null && state.currentSessionId!.isNotEmpty) {
+      try {
+        final token = await Urls.rawToken;
+        final api = FlutterApiCraft(
+          baseUrl: Urls.baseUrl,
+          path: Urls.aiSessionDetails(state.currentSessionId!),
+          apiType: ApiType.get,
+          apiAuthorization: token != null ? ApiAuthorization.bearer(token) : null,
+          enableLoading: false,
+          enableApiSuccessResponseGetSnackBar: false,
+          enableApiErrorResponseGetSnackBar: false,
+        );
+        final response = await api.call();
+        if (response.isSuccess && response.data is Map && response.data['data'] != null) {
+          final data = response.data['data'];
+          final rawMessages = (data['messages'] as List<dynamic>? ?? []);
+          final parsed = rawMessages
+              .map((m) => AiMessage.fromJson(m as Map<String, dynamic>))
+              .toList();
+          emit(state.copyWith(
+            messages: parsed.isNotEmpty ? parsed : [_defaultGreetingMessage],
+            currentSessionTitle: data['title'] ?? state.currentSessionTitle,
+          ));
+        }
+      } catch (_) {}
+    }
   }
 }

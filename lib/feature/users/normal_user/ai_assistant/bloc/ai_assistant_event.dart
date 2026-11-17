@@ -50,3 +50,7 @@ class AIClearChatRequested extends AIAssistantEvent {
 class AIClearAllSessionsRequested extends AIAssistantEvent {
   const AIClearAllSessionsRequested();
 }
+
+class AIRefreshRequested extends AIAssistantEvent {
+  const AIRefreshRequested();
+}

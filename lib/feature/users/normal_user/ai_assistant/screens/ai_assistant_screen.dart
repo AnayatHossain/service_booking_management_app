@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import '../../home_screen/model/service_model.dart';
 import '../bloc/ai_assistant_bloc.dart';
 import '../bloc/ai_assistant_event.dart';
 import '../bloc/ai_assistant_state.dart';
@@ -19,12 +22,47 @@ class AiAssistantScreen extends StatefulWidget {
 class _AiAssistantScreenState extends State<AiAssistantScreen> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  static final List<AiMessage> _dummySkeletonMessages = [
+    AiMessage(
+      role: 'assistant',
+      text: 'Hello! I am your AI Service Booking Assistant. How can I assist you with your booking today? Ask about services, prices, or recommendations!',
+      timestamp: DateTime.now(),
+      suggestedQuestions: const [
+        'What cleaning services do you have?',
+        'How much is AC servicing?',
+      ],
+    ),
+    AiMessage(
+      role: 'user',
+      text: 'Can you show me the best available home cleaning packages?',
+      timestamp: DateTime.now(),
+    ),
+    AiMessage(
+      role: 'assistant',
+      text: 'Here are the top rated cleaning and maintenance services from our verified service providers:',
+      timestamp: DateTime.now(),
+      suggestedServices: [
+        ServiceModel(
+          id: 'dummy_1',
+          name: 'Full House Deep Cleaning Service',
+          description: 'Comprehensive top-to-bottom sanitization',
+          category: 'Home Cleaning',
+          price: 120.0,
+          durationMinutes: 180,
+          imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800',
+        ),
+      ],
+    ),
+  ];
 
   @override
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 
@@ -423,49 +461,58 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               ),
             ),
 
-            // Sessions List
+            // Sessions List with Skeletonizer
             Expanded(
-              child: state.isLoadingSessions
-                  ? const Center(
-                      child: CircularProgressIndicator(color: AppColors.primaryColor),
-                    )
-                  : state.sessions.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.chat_bubble_outline_rounded,
-                                    size: 48, color: AppColors.textMuted.withOpacity(0.6)),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'No Chat History Yet',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                    fontSize: 14,
-                                  ),
+              child: Skeletonizer(
+                enabled: state.isLoadingSessions && state.sessions.isEmpty,
+                child: (state.sessions.isEmpty && !state.isLoadingSessions)
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.chat_bubble_outline_rounded,
+                                  size: 48, color: AppColors.textMuted.withOpacity(0.6)),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'No Chat History Yet',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                  fontSize: 14,
                                 ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  'Your conversations will be saved here automatically.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                  ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Your conversations will be saved here automatically.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          itemCount: state.sessions.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 6),
-                          itemBuilder: (ctx, index) {
-                            final session = state.sessions[index];
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        itemCount: (state.isLoadingSessions && state.sessions.isEmpty)
+                            ? 4
+                            : state.sessions.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 6),
+                        itemBuilder: (ctx, index) {
+                          final session = (state.isLoadingSessions && state.sessions.isEmpty)
+                              ? AiSessionModel(
+                                  id: 'dummy_$index',
+                                  title: 'Cleaning & Servicing Inquiry',
+                                  createdAt: '',
+                                  updatedAt: '',
+                                  messageCount: 4,
+                                  lastMessage: 'Here are the recommended options',
+                                )
+                              : state.sessions[index];
                             final isSelected = session.id == state.currentSessionId;
 
                             String formattedDate = '';
@@ -587,9 +634,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       create: (context) => AIAssistantBloc(),
       child: BlocConsumer<AIAssistantBloc, AIAssistantState>(
         listener: (context, state) {
+          _refreshController.refreshCompleted();
           _scrollToBottom();
         },
         builder: (context, state) {
+          final bool isSkeletonActive = state.isLoading && state.messages.isEmpty;
+
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: AppColors.bgColor,
@@ -620,21 +670,54 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             ),
             body: Column(
               children: [
-                // Chat Message List
+                // Chat Message List with SmartRefresher and Skeletonizer
                 Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    itemCount: state.messages.length,
-                    itemBuilder: (context, index) {
-                      final message = state.messages[index];
-                      return AiChatBubble(
-                        message: message,
-                        onQuestionTap: (q) {
-                          context.read<AIAssistantBloc>().add(AISendMessageRequested(q));
-                        },
-                      );
+                  child: SmartRefresher(
+                    controller: _refreshController,
+                    enablePullDown: true,
+                    header: const WaterDropHeader(
+                      waterDropColor: AppColors.primaryColor,
+                      complete: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Refreshed',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onRefresh: () {
+                      context.read<AIAssistantBloc>().add(const AIRefreshRequested());
                     },
+                    child: Skeletonizer(
+                      enabled: isSkeletonActive,
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        itemCount: isSkeletonActive
+                            ? _dummySkeletonMessages.length
+                            : state.messages.length,
+                        itemBuilder: (context, index) {
+                          final message = isSkeletonActive
+                              ? _dummySkeletonMessages[index]
+                              : state.messages[index];
+                          return AiChatBubble(
+                            message: message,
+                            onQuestionTap: (q) {
+                              context.read<AIAssistantBloc>().add(AISendMessageRequested(q));
+                            },
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
 
