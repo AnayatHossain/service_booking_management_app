@@ -36,12 +36,12 @@ class BookingFilterTabs extends StatelessWidget {
                 curve: Curves.easeInOut,
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
+                  color: isSelected ? AppColors.primaryColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
+                            color: AppColors.primaryColor.withOpacity(0.25),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -53,8 +53,8 @@ class BookingFilterTabs extends StatelessWidget {
                     tab,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                      color: isSelected ? AppColors.primaryColor : AppColors.textSecondary,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
                       letterSpacing: -0.2,
                     ),
                   ),
