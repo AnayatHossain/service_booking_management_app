@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
 import '../model/ai_message_model.dart';
+import 'ai_markdown_text.dart';
 import 'ai_service_card.dart';
 
 class AiChatBubble extends StatelessWidget {
@@ -28,9 +29,9 @@ class AiChatBubble extends StatelessWidget {
             children: [
               if (!isUser) ...[
                 CircleAvatar(
-                  radius: 16,
+                  radius: 15,
                   backgroundColor: AppColors.primaryLight,
-                  child: const Icon(Icons.smart_toy_rounded, color: AppColors.primaryColor, size: 18),
+                  child: const Icon(Icons.smart_toy_rounded, color: AppColors.primaryColor, size: 17),
                 ),
                 const SizedBox(width: 8),
               ],
@@ -40,11 +41,12 @@ class AiChatBubble extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isUser ? AppColors.primaryColor : Colors.white,
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(16),
-                      topRight: const Radius.circular(16),
-                      bottomLeft: Radius.circular(isUser ? 16 : 4),
-                      bottomRight: Radius.circular(isUser ? 4 : 16),
+                      topLeft: const Radius.circular(18),
+                      topRight: const Radius.circular(18),
+                      bottomLeft: Radius.circular(isUser ? 18 : 4),
+                      bottomRight: Radius.circular(isUser ? 4 : 18),
                     ),
+                    border: isUser ? null : Border.all(color: const Color(0xFFE2E8F0)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.04),
@@ -53,13 +55,9 @@ class AiChatBubble extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Text(
-                    message.text,
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.4,
-                      color: isUser ? Colors.white : AppColors.textPrimary,
-                    ),
+                  child: AiMarkdownText(
+                    text: message.text,
+                    isUser: isUser,
                   ),
                 ),
               ),
@@ -70,9 +68,9 @@ class AiChatBubble extends StatelessWidget {
           // Suggested Services Cards (if returned by AI)
           if (!isUser && message.suggestedServices.isNotEmpty) ...[
             Padding(
-              padding: const EdgeInsets.only(left: 40, top: 4),
+              padding: const EdgeInsets.only(left: 38, top: 8),
               child: SizedBox(
-                height: 110,
+                height: 104,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: message.suggestedServices.length,
@@ -85,15 +83,22 @@ class AiChatBubble extends StatelessWidget {
           // Follow-up question chips
           if (!isUser && message.suggestedQuestions.isNotEmpty) ...[
             Padding(
-              padding: const EdgeInsets.only(left: 40, top: 6),
+              padding: const EdgeInsets.only(left: 38, top: 8),
               child: Wrap(
                 spacing: 6,
                 runSpacing: 6,
                 children: message.suggestedQuestions.map((q) {
                   return ActionChip(
-                    label: Text(q, style: const TextStyle(fontSize: 11, color: AppColors.primaryColor)),
+                    label: Text(
+                      q,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
                     backgroundColor: Colors.white,
-                    side: const BorderSide(color: AppColors.primaryLight),
+                    side: const BorderSide(color: Color(0xFFBFDBFE)),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     onPressed: () => onQuestionTap?.call(q),
                   );

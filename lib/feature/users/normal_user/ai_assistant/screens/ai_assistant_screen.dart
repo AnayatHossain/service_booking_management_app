@@ -7,6 +7,7 @@ import '../bloc/ai_assistant_event.dart';
 import '../bloc/ai_assistant_state.dart';
 import '../model/ai_message_model.dart';
 import '../widgets/ai_chat_bubble.dart';
+import '../widgets/ai_typing_dots.dart';
 
 class AiAssistantScreen extends StatefulWidget {
   const AiAssistantScreen({super.key});
@@ -114,7 +115,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               ),
               const SizedBox(height: 24),
 
-              // 4. Balanced Buttons
+              // 4. Balanced Action Buttons
               Row(
                 children: [
                   Expanded(
@@ -246,7 +247,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               ),
               const SizedBox(height: 6),
               const Text(
-                'This will permanently delete all your conversation history with Gemini AI.',
+                'This will permanently delete all your previous conversation sessions.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
@@ -310,7 +311,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     return Drawer(
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(left: Radius.circular(24)),
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
       ),
       child: SafeArea(
         child: Column(
@@ -321,8 +322,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               child: Row(
                 children: [
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 38,
+                    height: 38,
                     decoration: BoxDecoration(
                       gradient: AppColors.primaryGradient,
                       borderRadius: BorderRadius.circular(12),
@@ -334,7 +335,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                    child: const Icon(Icons.forum_rounded, color: Colors.white, size: 20),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -342,7 +343,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'AI Conversations',
+                          'Chat History',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -350,7 +351,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                           ),
                         ),
                         Text(
-                          'Gemini Assistant History',
+                          'Saved conversations',
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
@@ -592,7 +593,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: AppColors.bgColor,
-            endDrawer: _buildHistoryDrawer(context, state),
+            drawer: _buildHistoryDrawer(context, state),
             appBar: AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
@@ -601,56 +602,20 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                 icon: const Icon(Icons.notes_rounded, color: AppColors.textPrimary, size: 26),
                 tooltip: 'Chat History',
                 onPressed: () {
-                  _scaffoldKey.currentState?.openEndDrawer();
+                  _scaffoldKey.currentState?.openDrawer();
                 },
               ),
-              title: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFBFDBFE)),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.auto_awesome, size: 10, color: AppColors.primaryColor),
-                        SizedBox(width: 4),
-                        Text(
-                          'POWERED BY GEMINI AI',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.6,
-                            color: AppColors.primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  const Text(
-                    'AI Service Assistant',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.add_comment_outlined, color: AppColors.primaryColor, size: 22),
-                  tooltip: 'Start New Chat',
-                  onPressed: () {
-                    context.read<AIAssistantBloc>().add(const AICreateSessionRequested());
-                  },
+              title: const Text(
+                'AI Service Assistant',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.3,
                 ),
+              ),
+              actions: const [
+                SizedBox(width: 48), // Balances leading icon for perfect centering
               ],
             ),
             body: Column(
@@ -673,44 +638,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   ),
                 ),
 
-                // Typing indicator
+                // 3-Dot Pulsing AI Progress Indicator
                 if (state.isLoading)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColors.primaryColor,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Gemini is typing...',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: AiTypingDots(),
                   ),
 
                 // Quick Prompt Chips
