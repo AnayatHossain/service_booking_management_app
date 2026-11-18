@@ -22,3 +22,11 @@ class NotificationMarkAsReadRequested extends NotificationEvent {
 class NotificationMarkAllAsReadRequested extends NotificationEvent {
   const NotificationMarkAllAsReadRequested();
 }
+
+class NotificationDeleteRequested extends NotificationEvent {
+  final String id;
+  const NotificationDeleteRequested(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}

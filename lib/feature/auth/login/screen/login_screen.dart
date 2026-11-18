@@ -176,52 +176,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // 5. Remember Me & Forgot Password
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () => bloc.add(const LoginRememberMeToggled()),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: Checkbox(
-                                    value: state.rememberMe,
-                                    onChanged: (_) => bloc.add(const LoginRememberMeToggled()),
-                                    activeColor: AppColors.primaryColor,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Remember me',
-                                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Get.snackbar(
-                                'Password Reset',
-                                'Password reset link sent to registered email.',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: const Color(0xFFE3F2FD),
-                                colorText: AppColors.primaryColor,
-                              );
-                            },
-                            child: const Text(
-                              'Forgot Password?',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.primaryColor,
-                                fontWeight: FontWeight.w600,
+                      // 5. Remember Me Checkbox
+                      GestureDetector(
+                        onTap: () => bloc.add(const LoginRememberMeToggled()),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: Checkbox(
+                                value: state.rememberMe,
+                                onChanged: (_) => bloc.add(const LoginRememberMeToggled()),
+                                activeColor: AppColors.primaryColor,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Remember me',
+                              style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
 

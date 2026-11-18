@@ -1,18 +1,38 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_api_craft/flutter_api_craft.dart';
+import 'package:service_booking_management_app/core/events/booking_event_bus.dart';
 import 'package:service_booking_management_app/core/network_caller/endpoints.dart';
 import '../model/booking_model.dart';
 import 'my_bookings_event.dart';
 import 'my_bookings_state.dart';
 
 class MyBookingsBloc extends Bloc<MyBookingsEvent, MyBookingsState> {
+  StreamSubscription? _statusSubscription;
+  StreamSubscription? _ratedSubscription;
+
   MyBookingsBloc() : super(const MyBookingsState()) {
     on<MyBookingsFetchRequested>(_onFetchBookings);
     on<MyBookingsFilterChanged>(_onFilterChanged);
     on<MyBookingsCancelRequested>(_onCancelBooking);
     on<MyBookingsRateRequested>(_onRateBooking);
 
+    _statusSubscription = BookingEventBus.stream.listen((event) {
+      add(const MyBookingsFetchRequested());
+    });
+
+    _ratedSubscription = BookingEventBus.ratedStream.listen((event) {
+      add(const MyBookingsFetchRequested());
+    });
+
     add(const MyBookingsFetchRequested());
+  }
+
+  @override
+  Future<void> close() {
+    _statusSubscription?.cancel();
+    _ratedSubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onFetchBookings(
@@ -133,10 +153,31 @@ class MyBookingsBloc extends Bloc<MyBookingsEvent, MyBookingsState> {
       final response = await api.call();
 
       if (response.isSuccess) {
+        final updatedList = state.allBookings.map((b) {
+          if (b.id == event.appointmentId) {
+            return b.copyWith(
+              isRated: true,
+              rating: event.rating,
+              review: event.review,
+            );
+          }
+          return b;
+        }).toList();
+
+        final filtered = _filterByTab(updatedList, state.selectedTab);
         emit(state.copyWith(
           isCancelling: false,
+          allBookings: updatedList,
+          filteredBookings: filtered,
           successMessage: 'Thank you for your rating & review! ⭐',
         ));
+
+        BookingEventBus.notifyBookingRated(
+          bookingId: event.appointmentId,
+          rating: event.rating,
+          review: event.review,
+        );
+
         add(const MyBookingsFetchRequested());
       } else {
         final msg = response.errorMessage ??

@@ -7,7 +7,7 @@ import 'package:service_booking_management_app/core/const/app_colors.dart';
 import 'package:service_booking_management_app/core/global_widegts/empty_screen_widget.dart';
 import '../../appointment/screen/appointment_screen.dart';
 import 'package:service_booking_management_app/feature/notifications/screens/notification_screen.dart';
-import '../../profile/screens/profile_screen.dart';
+import '../../navigation/bloc/navigation_cubit.dart';
 import '../../profile/screens/profile_details_screen.dart';
 import '../../service_details/screens/service_details_screen.dart';
 import '../bloc/home_bloc.dart';
@@ -80,10 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   userEmail: state.userEmail,
                   avatarUrl: state.userAvatar,
                   unreadCount: state.unreadNotificationsCount,
-                  onProfileTap: () async {
-                    await Get.to(() => const ProfileDetailsScreen());
-                    if (context.mounted) {
-                      context.read<HomeBloc>().add(const HomeRefreshed());
+                  onProfileTap: () {
+                    try {
+                      context.read<NavigationCubit>().changeTab(3);
+                    } catch (_) {
+                      Get.to(() => const ProfileDetailsScreen());
                     }
                   },
                   onNotificationTap: () async {
@@ -220,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Return ListView directly as child of SmartRefresher so pull-to-refresh works
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 145),
       children: [
         Skeletonizer(
           enabled: isLoading,
@@ -231,19 +232,13 @@ class _HomeScreenState extends State<HomeScreen> {
               if (state.searchQuery.isEmpty && displayFeatured.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Special Offers & Featured',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Spacer(),
-                      Icon(Icons.local_fire_department_rounded, size: 18, color: Colors.deepOrange),
-                    ],
+                  child: Text(
+                    'Featured',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
                 FeaturedBanner(

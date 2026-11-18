@@ -15,15 +15,17 @@ class ProfileUpdateRequested extends ProfileEvent {
   final String name;
   final String? phone;
   final String? avatarUrl;
+  final String? organizationName;
 
   const ProfileUpdateRequested({
     required this.name,
     this.phone,
     this.avatarUrl,
+    this.organizationName,
   });
 
   @override
-  List<Object?> get props => [name, phone, avatarUrl];
+  List<Object?> get props => [name, phone, avatarUrl, organizationName];
 }
 
 class ProfilePasswordChangeRequested extends ProfileEvent {
@@ -37,6 +39,10 @@ class ProfilePasswordChangeRequested extends ProfileEvent {
 
   @override
   List<Object?> get props => [currentPassword, newPassword];
+}
+
+class ProfileDeleteAccountRequested extends ProfileEvent {
+  const ProfileDeleteAccountRequested();
 }
 
 class ProfileLogoutRequested extends ProfileEvent {

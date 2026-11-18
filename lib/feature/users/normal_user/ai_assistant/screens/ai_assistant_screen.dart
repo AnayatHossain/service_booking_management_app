@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import '../../home_screen/model/service_model.dart';
 import '../bloc/ai_assistant_bloc.dart';
 import '../bloc/ai_assistant_event.dart';
@@ -110,7 +112,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                       color: const Color(0xFFFEE2E2),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFEF4444).withOpacity(0.18),
+                          color: const Color(0xFFEF4444).withValues(alpha: 0.18),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -195,7 +197,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFDC2626).withOpacity(0.35),
+                              color: const Color(0xFFDC2626).withValues(alpha: 0.35),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -367,7 +369,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primaryColor.withOpacity(0.3),
+                          color: AppColors.primaryColor.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -399,7 +401,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                    icon: SvgPicture.asset(
+                      AppSvgIcons.close,
+                      width: 20,
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -419,7 +426,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                     gradient: AppColors.primaryGradient,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryColor.withOpacity(0.3),
+                        color: AppColors.primaryColor.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -473,7 +480,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.chat_bubble_outline_rounded,
-                                  size: 48, color: AppColors.textMuted.withOpacity(0.6)),
+                                  size: 48, color: AppColors.textMuted.withValues(alpha: 0.6)),
                               const SizedBox(height: 12),
                               const Text(
                                 'No Chat History Yet',
@@ -588,10 +595,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(
-                                        Icons.delete_outline_rounded,
-                                        size: 18,
-                                        color: AppColors.textMuted,
+                                      icon: SvgPicture.asset(
+                                        AppSvgIcons.delete,
+                                        width: 18,
+                                        height: 18,
+                                        colorFilter: const ColorFilter.mode(AppColors.textMuted, BlendMode.srcIn),
                                       ),
                                       onPressed: () => _showDeleteSessionDialog(context, session),
                                     ),
@@ -601,6 +609,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                             );
                           },
                         ),
+              ),
             ),
 
             // Clear All History Button
@@ -760,28 +769,25 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                     ),
                   ),
 
-                // Floating Input Bar
+                // Floating Input Bar (Positioned above CustomBottomNavigationBar)
                 Container(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(top: BorderSide(color: AppColors.strokeColor.withOpacity(0.8))),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, -2),
-                      ),
-                    ],
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 6, 12, 115),
+                  color: Colors.transparent,
                   child: Row(
                     children: [
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(color: const Color(0xFFE2E8F0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: TextField(
                             controller: _inputController,
@@ -802,31 +808,58 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
+                      // Circular Send Button with Base-Color Stroke & Ambient Shadow
                       Container(
-                        width: 44,
-                        height: 44,
+                        width: 46,
+                        height: 46,
                         decoration: BoxDecoration(
+                          color: Colors.white,
                           shape: BoxShape.circle,
-                          gradient: AppColors.primaryGradient,
+                          border: Border.all(
+                            color: AppColors.primaryColor.withOpacity(0.32),
+                            width: 1.2,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryColor.withOpacity(0.35),
+                              color: AppColors.primaryColor.withOpacity(0.10),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 22),
-                          onPressed: state.isLoading
-                              ? null
-                              : () {
-                                  final text = _inputController.text.trim();
-                                  if (text.isNotEmpty) {
-                                    context.read<AIAssistantBloc>().add(AISendMessageRequested(text));
-                                    _inputController.clear();
-                                  }
-                                },
+                        child: Material(
+                          color: Colors.transparent,
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: state.isLoading
+                                ? null
+                                : () {
+                                    final text = _inputController.text.trim();
+                                    if (text.isNotEmpty) {
+                                      context.read<AIAssistantBloc>().add(AISendMessageRequested(text));
+                                      _inputController.clear();
+                                    }
+                                  },
+                            child: Center(
+                              child: SvgPicture.asset(
+                                AppSvgIcons.send,
+                                width: 21,
+                                height: 21,
+                                colorFilter: ColorFilter.mode(
+                                  state.isLoading
+                                      ? AppColors.textMuted
+                                      : AppColors.primaryColor,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],

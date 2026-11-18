@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 
 class HomeHeader extends StatelessWidget {
   final String userName;
@@ -136,38 +138,56 @@ class HomeHeader extends StatelessWidget {
           GestureDetector(
             onTap: onNotificationTap,
             child: Container(
-              width: 42,
-              height: 42,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: AppColors.bgColor,
+                color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.strokeColor),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: Stack(
-                alignment: Alignment.center,
+                clipBehavior: Clip.none,
                 children: [
-                  const Icon(
-                    Icons.notifications_none_rounded,
-                    size: 22,
-                    color: AppColors.textPrimary,
+                  Center(
+                    child: SvgPicture.asset(
+                      AppSvgIcons.notification,
+                      width: 20,
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(AppColors.textPrimary, BlendMode.srcIn),
+                    ),
                   ),
                   if (unreadCount > 0)
                     Positioned(
-                      top: 10,
-                      right: 10,
+                      top: 0,
+                      right: 0,
                       child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.error,
-                          shape: BoxShape.circle,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: unreadCount > 9 ? 4.5 : 3,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDC2626),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Center(
+                          child: Text(
+                            unreadCount > 99 ? '99+' : '$unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              height: 1,
+                            ),
+                          ),
                         ),
                       ),
                     ),

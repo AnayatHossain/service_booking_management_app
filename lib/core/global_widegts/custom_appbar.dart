@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../const/app_svg_icons.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -54,9 +56,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: leading ??
                       IconButton(
                         onPressed: onBack ?? Get.back,
-                        icon: const Icon(Icons.arrow_back_ios),
-                        color: titleColor,
-                        iconSize: 22,
+                        icon: SvgPicture.asset(
+                          AppSvgIcons.backArrow,
+                          width: 18,
+                          height: 18,
+                          colorFilter: ColorFilter.mode(titleColor, BlendMode.srcIn),
+                        ),
                         splashRadius: 22,
                       ),
                 ),

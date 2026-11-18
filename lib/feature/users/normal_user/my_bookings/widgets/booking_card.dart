@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import '../model/booking_model.dart';
 
 class BookingCard extends StatelessWidget {
@@ -153,7 +155,12 @@ class BookingCard extends StatelessWidget {
                           const SizedBox(height: 6),
                           Row(
                             children: [
-                              const Icon(Icons.calendar_today_outlined, size: 13, color: Color(0xFF64748B)),
+                              SvgPicture.asset(
+                                AppSvgIcons.calendar,
+                                width: 13,
+                                height: 13,
+                                colorFilter: const ColorFilter.mode(Color(0xFF64748B), BlendMode.srcIn),
+                              ),
                               const SizedBox(width: 5),
                               Text(
                                 '${booking.date}  •  ${booking.timeSlot}',
@@ -263,12 +270,17 @@ class BookingCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(color: const Color(0xFFFDE68A)),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.star_rounded, size: 15, color: Color(0xFFF59E0B)),
-                                  SizedBox(width: 4),
-                                  Text(
+                                  SvgPicture.asset(
+                                    AppSvgIcons.starReview,
+                                    width: 15,
+                                    height: 15,
+                                    colorFilter: const ColorFilter.mode(Color(0xFFF59E0B), BlendMode.srcIn),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Text(
                                     'Rate Service',
                                     style: TextStyle(
                                       fontSize: 12,
@@ -282,24 +294,25 @@ class BookingCard extends StatelessWidget {
                           ),
 
                         // Already Rated Badge
-                        if (booking.isCompleted && booking.isRated)
+                        if (booking.isCompleted && booking.isAlreadyRated)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: const Color(0xFFECFDF5),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: const Color(0xFFA7F3D0)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.star_rounded, size: 14, color: Color(0xFF059669)),
-                                const SizedBox(width: 4),
+                                const Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFF059669)),
+                                const SizedBox(width: 5),
                                 Text(
                                   booking.rating != null
-                                      ? 'Rated ${booking.rating!.toStringAsFixed(1)}'
-                                      : 'Rated ★',
+                                      ? 'Rating Completed (${booking.rating!.toStringAsFixed(1)}★)'
+                                      : 'Rating Completed',
                                   style: const TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.w700,
                                     color: Color(0xFF047857),
                                   ),

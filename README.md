@@ -1,172 +1,145 @@
 # Service Booking & Management Mobile Application (Flutter)
 
-A cross-platform Flutter mobile application designed for discovering, booking, and managing home, wellness, and technical services with AI-assisted recommendations.
+A cross-platform Flutter mobile application designed for discovering, booking, and managing home, wellness, and technical services with AI-assisted recommendations. Features a dual-role interface for **Customers (Normal Users)** and **Service Providers**.
 
 ---
 
-## 📱 Features
+## 📱 Key Features
 
-### 1. Authentication
-- User registration (name, email, password, phone) with validation.
-- Secure login and session persistence (`SharedPreferencesHelper`).
-- Quick demo credential prefill for evaluator convenience (`testuser@example.com` / `password123`).
-- Logout with confirmation dialog.
+### 1. Dual-Role Support
+- **Customer (Normal User)**:
+  - Explore service catalog with categories and featured carousel.
+  - Search and filter services by price, rating, and category.
+  - Book appointments with real-time slot availability and conflict prevention.
+  - View booking history across `All`, `Pending`, `Confirmed`, `Completed`, and `Cancelled` tabs.
+  - Submit, view, **edit**, and **delete** ratings & reviews for completed services.
+  - Chat with the Gemini-powered AI ServiceBot.
+  - Live notification bell with counter (`99+` badge support).
+- **Service Provider**:
+  - Analytics Dashboard: Services count, Bookings count, Pending count, Done count, and recent appointments.
+  - Quick appointment lifecycle actions: `Confirm`, `Decline`, `Mark Completed`.
+  - My Services management: Add, Edit, Delete services with instant image and title sync.
+  - **HOT / Featured Service** switch to promote services on the customer Home Screen carousel.
+  - Provider Search & Filter bar matching customer experience.
 
-### 2. Home & Discovery
-- Interactive service exploration with categorized chips (`All`, `Home Cleaning`, `Spa & Wellness`, `Appliance Repair`, etc.).
-- Real-time search bar with instant query filtering.
-- Featured & Popular services carousel banner with rating badges.
-- Dynamic service listing with price, duration, and rating stats.
-
-### 3. Service Details
-- Complete service information, description, and pricing breakdown.
-- Estimated duration and certification badges.
-- Available days of the week and standard time slots.
-- Sticky "Book Appointment" CTA.
-
-### 4. Appointment Booking
-- 14-day interactive timeline date picker.
-- Real-time slot availability check via backend API (`/api/appointments/availability`).
-- Intelligent conflict prevention: previously booked time slots are visually struck through and disabled.
-- Optional customer notes/instructions field.
-- Interactive booking confirmation modal dialog with instant redirection to "My Bookings".
-
-### 5. My Bookings Management
-- Tabbed view: `All`, `Upcoming`, `Completed`, `Cancelled`.
-- Color-coded status badges:
-  - 🟢 **Confirmed**: Green
-  - 🟡 **Pending**: Amber
-  - 🔵 **Completed**: Blue
-  - 🔴 **Cancelled**: Red
-- Full booking details: date, time slot, service category, price, and customer notes.
-- "Cancel Booking" action with confirmation dialog.
-
-### 6. AI Service Assistant (Google Gemini Powered)
-- Interactive conversational AI assistant (**ServiceBot**).
-- Answers questions about available services, pricing, and scheduling policies.
-- Delivers tailored service recommendations rendered as directly tappable service cards.
-- Quick prompt chips for fast 1-tap inquiries.
-- Secure backend proxy: **Zero API key exposure** inside the mobile app.
-
-### 7. User Profile
-- View personal customer profile details and avatar.
-- Edit profile information (name and phone number) with instant cloud sync.
-- Change password dialog with confirmation validation.
-- Help & Support and Terms & Privacy references.
+### 2. Architecture & State Management
+- **State Management**: **BLoC Pattern** (`flutter_bloc`, `BlocBuilder`, `BlocProvider`) for scalable and reactive UI state handling.
+- **Routing & Snackbars**: `get` for declarative route navigation and non-blocking notifications.
+- **HTTP Client**: Built with **`flutter_api_craft`** (v0.0.7) ensuring standard, reusable API calls with explicit UTF-8 encoding.
+- **Shimmer & Refresh**: `skeletonizer` for shimmer loading placeholders and `pull_to_refresh` (`SmartRefresher`) for pull-to-refresh interactions.
+- **Session Persistence**: Secure persistent token and role storage with `shared_preferences`.
 
 ---
 
-## 🏗️ Architecture & Best Practices
-
-- **State Management**: **GetX** reactive state management (`Rx`, `Obx`, `GetxController`).
-- **HTTP Client**: Built with **`flutter_api_craft`** (v0.0.6) for consistent, reusable API interactions across screens.
-- **Controller Separation**: Each screen/feature owns its isolated controller (e.g. `LogInController`, `HomeController`, `AppointmentBookingController`, `MyBookingsController`, `AiAssistantController`, `ProfileController`), preventing giant centralized God-classes.
-- **Modular Widgets**: Screens are broken down into small, single-responsibility widgets located in feature-specific `widgets/` folders.
-- **Design System**: Blue Material 3 design system with custom `AppColors`, typography, elevation, and responsive cards.
-
----
-
-## 📁 Project Directory Structure
+## 📁 Directory Structure
 
 ```
 lib/
-├── app.dart                                # MaterialApp configuration & Blue theme
-├── main.dart                               # Flutter app entry point
+├── app.dart                                    # MaterialApp configuration & Blue Material 3 theme
+├── main.dart                                   # Flutter app entry point
 ├── core/
 │   ├── const/
-│   │   └── app_colors.dart                 # Blue color palette & gradients
+│   │   ├── app_colors.dart                     # Blue color palette & gradients
+│   │   └── app_svg_icons.dart                  # Vector SVG asset paths
 │   ├── network_caller/
-│   │   └── endpoints.dart                  # Base URL & API endpoints
+│   │   └── endpoints.dart                      # Base URL & API endpoints
 │   ├── services/
-│   │   └── shared_preferences_helper.dart  # Session persistence
+│   │   └── shared_preferences_helper.dart      # Session and role persistence
 │   └── global_widegts/
-│       ├── app_button.dart                 # Reusable primary button
-│       ├── custom_text_field.dart          # Form input field with icons & eye toggle
-│       └── empty_screen_widget.dart        # Empty state placeholder
+│       ├── app_button.dart                     # Reusable primary button
+│       ├── custom_text_field.dart              # Form input field with icons & eye toggle
+│       └── empty_screen_widget.dart            # Empty state placeholder
 └── feature/
-    ├── splash/
-    │   └── splash_screen.dart              # Animated splash & auto session redirect
-    ├── auth/
-    │   ├── login/
-    │   │   ├── controller/login_controller.dart
-    │   │   ├── screen/login_screen.dart
-    │   │   └── widgets/auth_header.dart
-    │   └── signup/
-    │       ├── controller/signup_controller.dart
-    │       └── screen/signup_screen.dart
-    ├── navigation/
-    │   ├── controller/bottom_navbar_controller.dart
-    │   └── screen/main_navigation_screen.dart
-    ├── home_screen/
-    │   ├── controllers/home_controller.dart
-    │   ├── model/service_model.dart
-    │   ├── screens/home_screen.dart
-    │   └── widgets/
-    │       ├── category_selector.dart
-    │       ├── featured_banner.dart
-    │       ├── search_filter_bar.dart
-    │       └── service_card.dart
-    ├── service_details/
-    │   ├── controllers/service_details_controller.dart
-    │   ├── screens/service_details_screen.dart
-    │   └── widgets/
-    │       ├── book_bottom_bar.dart
-    │       └── service_info_header.dart
-    ├── appointment/
-    │   ├── controllers/appointment_booking_controller.dart
-    │   ├── screens/appointment_booking_screen.dart
-    │   └── widgets/
-    │       ├── date_picker_timeline.dart
-    │       └── time_slot_selector.dart
-    ├── my_bookings/
-    │   ├── controllers/my_bookings_controller.dart
-    │   ├── model/booking_model.dart
-    │   ├── screens/my_bookings_screen.dart
-    │   └── widgets/
-    │       ├── booking_card.dart
-    │       ├── booking_filter_tabs.dart
-    │       └── booking_status_chip.dart
-    ├── profile/
-    │   ├── controllers/profile_controller.dart
-    │   ├── screens/
-    │   │   ├── profile_screen.dart
-    │   │   └── edit_profile_screen.dart
-    │   └── widgets/
-    │       ├── change_password_dialog.dart
-    │       ├── profile_header.dart
-    │       └── profile_menu_item.dart
-    └── ai_assistant/
-        ├── controllers/ai_assistant_controller.dart
-        ├── model/ai_message_model.dart
-        ├── screens/ai_assistant_screen.dart
-        └── widgets/
-            ├── ai_chat_bubble.dart
-            └── ai_service_card.dart
+    ├── splash/                                 # Animated splash & session routing
+    ├── auth/                                   # Login (with Remember Me) & Sign Up
+    ├── users/
+    │   ├── normal_user/
+    │   │   ├── home_screen/                    # Carousel, category chips, search & filter
+    │   │   ├── service_details/                # Full service overview & booking CTA
+    │   │   ├── appointment_booking/            # 14-day timeline & conflict-free slot picker
+    │   │   ├── my_bookings/                    # Tabbed bookings with ratings & reviews
+    │   │   ├── ai_assistant/                   # Gemini AI ServiceBot with tappable cards
+    │   │   ├── notifications/                  # Notifications history & badge counts
+    │   │   └── profile/                        # Customer profile & password change
+    │   └── service_provider/
+    │       ├── dashboard/                      # Provider KPI metrics & recent actions
+    │       ├── my_services/                    # Provider service CRUD, search, and HOT toggle
+    │       ├── bookings/                       # Provider booking requests management
+    │       └── profile/                        # Provider company profile
+    └── navigation/                             # Role-aware bottom navigation bar
 ```
 
 ---
 
-## 🚀 Running the Application
+## 🚀 Installation & Setup
 
 ### 1. Prerequisites
-- Flutter SDK (3.13.0+)
-- Android Studio / VS Code with Flutter extension
-- Android device or emulator running Android 8.0+
+- **Flutter SDK**: 3.13.0 or higher ([Install Flutter](https://docs.flutter.dev/get-started/install))
+- **Dart SDK**: 3.0 or higher
+- **Android Studio** / **VS Code** with Flutter and Dart extensions
+- Android device or emulator running Android 8.0+ (API 26+)
 
-### 2. Configure Backend URL
-In `lib/core/network_caller/endpoints.dart`:
-- Android Emulator automatically points to `http://10.0.2.2:8000/api`
-- Physical Android device over WiFi: update to your computer's local IP (e.g. `http://192.168.1.15:8000/api`)
-
-### 3. Run the App
+### 2. Install Dependencies
 ```bash
 flutter pub get
+```
+
+### 3. Backend Configuration
+The app automatically detects the host environment in `lib/core/network_caller/endpoints.dart`:
+```dart
+// Automatically selects 10.0.2.2 for Android emulator and 127.0.0.1 for desktop/web
+static String get baseUrl {
+  if (kIsWeb) return 'http://127.0.0.1:8000/api';
+  try {
+    if (Platform.isAndroid) return 'http://10.0.2.2:8000/api';
+  } catch (_) {}
+  return 'http://127.0.0.1:8000/api';
+}
+```
+
+#### Running on Android Emulator:
+No changes needed. It automatically communicates with the host machine at `http://10.0.2.2:8000/api`.
+
+#### Running on Physical Android Device via USB:
+Execute the ADB reverse command in your terminal so requests to `localhost:8000` route through your computer:
+```bash
+adb reverse tcp:8000 tcp:8000
+```
+Then set `baseUrl` to `http://127.0.0.1:8000/api`.
+
+#### Running on Physical Device via Wi-Fi:
+Set `baseUrl` in `endpoints.dart` to your computer's local network IP:
+```dart
+return 'http://192.168.1.15:8000/api';
+```
+
+---
+
+## 🏃 Execution Instructions
+
+### 1. Start Connected Device / Emulator
+Verify your device is detected:
+```bash
+flutter devices
+```
+
+### 2. Run the App in Debug Mode
+```bash
 flutter run
 ```
 
-### 4. Build Android APK
+### 3. Build Release Android APK
 ```bash
 flutter build apk --release
 ```
 The resulting APK will be located at:
 `build/app/outputs/flutter-apk/app-release.apk`
+
+---
+
+## 🔑 Demo Login Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Normal User (Customer)** | `testuser@example.com` | `password123` |
+| **Service Provider** | `provider@example.com` | `password123` |

@@ -31,6 +31,24 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:  # Hit this: flutter pub run flutter_launcher_icons:main
+  image_path: "assets/svg/app_logo.png"
+  background_color: "#FFFFFF"
+  android: true
+  ios: true
+  macos:
+    generate: true
+    image_path: "assets/svg/app_logo.png"
+    background_color: "#FFFFFF"
+  web:
+    generate: true
+    image_path: "assets/svg/app_logo.png"
+    background_color: "#FFFFFF"
+
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/svg/

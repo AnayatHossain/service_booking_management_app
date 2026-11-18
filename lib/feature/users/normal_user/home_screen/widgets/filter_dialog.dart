@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 
 enum ServiceSortOption { defaultSort, priceLowHigh, priceHighLow, ratingHigh }
 
@@ -37,43 +39,95 @@ class _FilterDialogState extends State<FilterDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      elevation: 8,
-      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: ConstrainedBox(
+      child: Container(
         constraints: const BoxConstraints(maxWidth: 420),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header: Title & Close Button
+              // Header: Title with Filter SVG & Sleek Round Close Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.tune_rounded, color: AppColors.primaryColor, size: 22),
-                      SizedBox(width: 8),
-                      Text(
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFBFDBFE), width: 1),
+                        ),
+                        child: Center(
+                          child: SvgPicture.asset(
+                            AppSvgIcons.filter,
+                            width: 19,
+                            height: 19,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.primaryColor,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
                         'Filter Services',
                         style: TextStyle(
                           fontSize: 19,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                          letterSpacing: -0.3,
                         ),
                       ),
                     ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 22),
-                    onPressed: () => Navigator.pop(context),
+                  InkWell(
+                    onTap: () => Navigator.pop(context),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF1F5F9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          AppSvgIcons.close,
+                          width: 14,
+                          height: 14,
+                          colorFilter: const ColorFilter.mode(
+                            Color(0xFF64748B),
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-              const Divider(color: AppColors.strokeColor, height: 20),
+              const SizedBox(height: 16),
+              const Divider(color: Color(0xFFF1F5F9), height: 1),
+              const SizedBox(height: 16),
 
               // Categories Section
               const Text(
@@ -81,7 +135,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: Color(0xFF1E293B),
                 ),
               ),
               const SizedBox(height: 10),
@@ -94,15 +148,21 @@ class _FilterDialogState extends State<FilterDialog> {
                     label: Text(cat),
                     selected: isSelected,
                     selectedColor: AppColors.primaryColor,
+                    checkmarkColor: Colors.white,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected ? Colors.white : const Color(0xFF334155),
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       fontSize: 13,
                     ),
-                    backgroundColor: AppColors.bgColor,
-                    side: BorderSide(
-                      color: isSelected ? AppColors.primaryColor : AppColors.strokeColor,
+                    backgroundColor: const Color(0xFFF8FAFC),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    side: BorderSide(
+                      color: isSelected ? AppColors.primaryColor : const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                     onSelected: (_) {
                       setState(() {
                         _selectedCat = cat;
@@ -119,7 +179,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: Color(0xFF1E293B),
                 ),
               ),
               const SizedBox(height: 10),
@@ -133,51 +193,77 @@ class _FilterDialogState extends State<FilterDialog> {
                   _sortChip('Price: High to Low', ServiceSortOption.priceHighLow),
                 ],
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 24),
 
               // Action Buttons: Reset & Apply
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.strokeColor, width: 1.2),
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      onPressed: () {
-                        widget.onReset();
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        'Reset All',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                    child: SizedBox(
+                      height: 48,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF1F5F9),
+                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          padding: EdgeInsets.zero,
+                        ),
+                        onPressed: () {
+                          widget.onReset();
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          'Reset All',
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13.5,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      onPressed: () {
-                        widget.onApply(_selectedCat, _selectedSort);
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        'Apply Filters',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                    child: SizedBox(
+                      height: 48,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF2563EB).withOpacity(0.35),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            padding: EdgeInsets.zero,
+                          ),
+                          onPressed: () {
+                            widget.onApply(_selectedCat, _selectedSort);
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Apply Filters',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13.5,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -197,15 +283,21 @@ class _FilterDialogState extends State<FilterDialog> {
       label: Text(label),
       selected: isSelected,
       selectedColor: AppColors.primaryColor,
+      checkmarkColor: Colors.white,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : AppColors.textPrimary,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-        fontSize: 12,
+        color: isSelected ? Colors.white : const Color(0xFF334155),
+        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        fontSize: 12.5,
       ),
-      backgroundColor: AppColors.bgColor,
+      backgroundColor: const Color(0xFFF8FAFC),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       side: BorderSide(
-        color: isSelected ? AppColors.primaryColor : AppColors.strokeColor,
+        color: isSelected ? AppColors.primaryColor : const Color(0xFFE2E8F0),
+        width: 1,
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       onSelected: (_) {
         setState(() {
           _selectedSort = option;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -8,11 +9,12 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:intl/intl.dart';
 
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
 import 'edit_profile_screen.dart';
-import 'profile_screen.dart';
+import '../../settings/screens/settings_screen.dart';
 
 class ProfileDetailsScreen extends StatefulWidget {
   const ProfileDetailsScreen({super.key});
@@ -69,26 +71,28 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             appBar: AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
-              leading: Navigator.canPop(context)
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  : null,
+              centerTitle: true,
+              automaticallyImplyLeading: false,
               title: const Text(
-                'User Profile',
+                'Profile',
                 style: TextStyle(
                   color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   fontSize: 18,
+                  letterSpacing: -0.2,
                 ),
               ),
               actions: [
                 IconButton(
                   tooltip: 'Settings & Security',
-                  icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary, size: 22),
+                  icon: SvgPicture.asset(
+                    AppSvgIcons.settingsFilled,
+                    width: 22,
+                    height: 22,
+                    colorFilter: const ColorFilter.mode(AppColors.textPrimary, BlendMode.srcIn),
+                  ),
                   onPressed: () {
-                    Get.to(() => const ProfileScreen());
+                    Get.to(() => const SettingsScreen());
                   },
                 ),
                 const SizedBox(width: 8),
@@ -114,98 +118,48 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
               onRefresh: () {
                 bloc.add(const ProfileLoadRequested());
               },
-              child: Skeletonizer(
-                enabled: isLoading,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. Profile Hero Card
-                      _buildHeroCard(state),
-                      const SizedBox(height: 20),
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+                children: [
+                  Skeletonizer(
+                    enabled: isLoading,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 1. Profile Hero Card
+                        _buildHeroCard(state),
+                        const SizedBox(height: 20),
 
-                      // 2. Lifetime Booking Statistics Grid
-                      const Text(
-                        'Booking Overview',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                        // 2. Lifetime Booking Statistics Grid
+                        const Text(
+                          'Booking Overview',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildStatsGrid(state),
-                      const SizedBox(height: 24),
+                        const SizedBox(height: 12),
+                        _buildStatsGrid(state),
+                        const SizedBox(height: 24),
 
-                      // 3. Contact & Personal Info Details
-                      const Text(
-                        'Account Information',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildAccountInfoCard(context, state),
-                      const SizedBox(height: 28),
-
-                      // 4. Primary Actions
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            final updated = await Get.to(() => EditProfileScreen(
-                                  initialName: state.name,
-                                  initialPhone: state.phone ?? '',
-                                  initialAvatarUrl: state.avatarUrl ?? '',
-                                ));
-                            if (updated == true) {
-                              bloc.add(const ProfileLoadRequested());
-                            }
-                          },
-                          icon: const Icon(Icons.edit_outlined, size: 18),
-                          label: const Text(
-                            'Edit Profile',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        // 3. Contact & Personal Info Details
+                        const Text(
+                          'Account Information',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Get.to(() => const ProfileScreen());
-                          },
-                          icon: const Icon(Icons.tune_rounded, size: 18, color: AppColors.primaryColor),
-                          label: const Text(
-                            'Account Settings & Security',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryColor,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.primaryColor),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                        ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        _buildAccountInfoCard(context, state),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
@@ -216,22 +170,24 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
   Widget _buildHeroCard(ProfileState state) {
     final displayName = state.name.isNotEmpty ? state.name : 'Customer';
-    final displayEmail = state.email.isNotEmpty ? state.email : 'user@example.com';
+    final isProvider = state.role.toLowerCase().contains('provider') ||
+        state.role.toLowerCase().contains('service') ||
+        state.email.toLowerCase().contains('provider');
     final hasAvatar = state.avatarUrl != null &&
         state.avatarUrl!.isNotEmpty &&
         state.avatarUrl!.startsWith('http');
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.strokeColor.withOpacity(0.8)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 14,
+            color: Colors.black.withOpacity(0.035),
+            blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
@@ -241,16 +197,16 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
           Stack(
             children: [
               Container(
-                width: 86,
-                height: 86,
+                width: 88,
+                height: 88,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primaryLight,
-                  border: Border.all(color: AppColors.primaryColor, width: 2.5),
+                  color: const Color(0xFFEFF6FF),
+                  border: Border.all(color: const Color(0xFF2563EB), width: 2.5),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.18),
-                      blurRadius: 12,
+                      color: const Color(0xFF2563EB).withOpacity(0.18),
+                      blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -270,7 +226,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                 bottom: 2,
                 right: 2,
                 child: Container(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -291,24 +247,39 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
-              letterSpacing: -0.3,
+              letterSpacing: -0.4,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            displayEmail,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
+          if (state.organizationName != null && state.organizationName!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  AppSvgIcons.enterprise,
+                  width: 14,
+                  height: 14,
+                  colorFilter: const ColorFilter.mode(Color(0xFF2563EB), BlendMode.srcIn),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  state.organizationName!,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2563EB),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
+          ],
+          const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primaryLight,
+              color: const Color(0xFFEFF6FF),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFDBEAFE)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -323,11 +294,11 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Verified ${state.role.capitalizeFirst ?? "Customer"}',
+                  isProvider ? 'Verified Provider' : 'Verified Customer',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primaryColor,
+                    color: Color(0xFF1D4ED8),
                   ),
                 ),
               ],
@@ -361,7 +332,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             title: 'Total',
             value: '${state.totalBookings}',
             subtitle: 'Bookings',
-            icon: Icons.calendar_month_rounded,
+            svgAsset: AppSvgIcons.calendar,
             color: AppColors.primaryColor,
           ),
         ),
@@ -371,7 +342,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             title: 'Active',
             value: '${state.activeBookings}',
             subtitle: 'Upcoming',
-            icon: Icons.access_time_rounded,
+            svgAsset: AppSvgIcons.clock,
             color: Colors.amber.shade800,
           ),
         ),
@@ -381,7 +352,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             title: 'Done',
             value: '${state.completedBookings}',
             subtitle: 'Completed',
-            icon: Icons.task_alt_rounded,
+            svgAsset: AppSvgIcons.completedTask,
             color: AppColors.success,
           ),
         ),
@@ -391,7 +362,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             title: 'Cancelled',
             value: '${state.cancelledBookings}',
             subtitle: 'Cancelled',
-            icon: Icons.cancel_outlined,
+            svgAsset: AppSvgIcons.close,
             color: Colors.red.shade400,
           ),
         ),
@@ -403,7 +374,8 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
     required String title,
     required String value,
     required String subtitle,
-    required IconData icon,
+    String? svgAsset,
+    IconData? icon,
     required Color color,
   }) {
     return Container(
@@ -415,7 +387,17 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 20),
+          if (svgAsset != null)
+            SvgPicture.asset(
+              svgAsset,
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+            )
+          else if (icon != null)
+            Icon(icon, color: color, size: 20)
+          else
+            const SizedBox(height: 20),
           const SizedBox(height: 8),
           Text(
             value,
@@ -442,49 +424,71 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
   }
 
   Widget _buildAccountInfoCard(BuildContext context, ProfileState state) {
+    final displayEmail = state.email.isNotEmpty ? state.email : 'user@example.com';
+    final hasPhone = state.phone != null && state.phone!.isNotEmpty;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.strokeColor.withOpacity(0.8)),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           _buildInfoRow(
-            icon: Icons.phone_outlined,
+            svgAsset: AppSvgIcons.telephone,
             label: 'Phone Number',
-            value: (state.phone != null && state.phone!.isNotEmpty) ? state.phone! : 'Not provided yet',
-            isActionable: state.phone != null && state.phone!.isNotEmpty,
+            value: hasPhone ? state.phone! : 'Not provided yet',
+            isActionable: hasPhone,
             onAction: () {
-              if (state.phone != null && state.phone!.isNotEmpty) {
+              if (hasPhone) {
                 Clipboard.setData(ClipboardData(text: state.phone!));
-                Get.snackbar('Copied', 'Phone number copied to clipboard',
-                    snackPosition: SnackPosition.BOTTOM, duration: const Duration(seconds: 2));
+                Get.snackbar(
+                  'Copied',
+                  'Phone number copied to clipboard',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                  backgroundColor: Colors.white,
+                  colorText: AppColors.textPrimary,
+                  margin: const EdgeInsets.all(16),
+                  borderRadius: 12,
+                );
               }
             },
           ),
-          const Divider(height: 24, thickness: 0.7),
+          const Divider(height: 24, thickness: 0.7, color: Color(0xFFF1F5F9)),
           _buildInfoRow(
-            icon: Icons.mail_outline_rounded,
-            label: 'Email Status',
-            value: 'Verified & Active',
-            badge: const Text(
-              'Verified',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success),
-            ),
+            svgAsset: AppSvgIcons.mailFilled,
+            label: 'Email Address',
+            value: displayEmail,
+            isActionable: state.email.isNotEmpty,
+            onAction: () {
+              Clipboard.setData(ClipboardData(text: displayEmail));
+              Get.snackbar(
+                'Copied',
+                'Email address copied to clipboard',
+                snackPosition: SnackPosition.BOTTOM,
+                duration: const Duration(seconds: 2),
+                backgroundColor: Colors.white,
+                colorText: AppColors.textPrimary,
+                margin: const EdgeInsets.all(16),
+                borderRadius: 12,
+              );
+            },
           ),
-          const Divider(height: 24, thickness: 0.7),
+          const Divider(height: 24, thickness: 0.7, color: Color(0xFFF1F5F9)),
           _buildInfoRow(
-            icon: Icons.calendar_today_rounded,
+            svgAsset: AppSvgIcons.calendar,
             label: 'Member Since',
             value: _formatJoinDate(state.createdAt),
-          ),
-          const Divider(height: 24, thickness: 0.7),
-          _buildInfoRow(
-            icon: Icons.shield_outlined,
-            label: 'Account Protection',
-            value: 'Standard Session Security',
           ),
         ],
       ),
@@ -492,7 +496,8 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
   }
 
   Widget _buildInfoRow({
-    required IconData icon,
+    String? svgAsset,
+    IconData? icon,
     required String label,
     required String value,
     Widget? badge,
@@ -502,12 +507,21 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
-            color: AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: AppColors.primaryColor, size: 18),
+          alignment: Alignment.center,
+          child: svgAsset != null
+              ? SvgPicture.asset(
+                  svgAsset,
+                  width: 19,
+                  height: 19,
+                  colorFilter: const ColorFilter.mode(Color(0xFF2563EB), BlendMode.srcIn),
+                )
+              : Icon(icon ?? Icons.info_outline, color: const Color(0xFF2563EB), size: 19),
         ),
         const SizedBox(width: 14),
         Expanded(
@@ -530,17 +544,21 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
         if (badge != null) badge,
         if (isActionable)
-          IconButton(
-            icon: const Icon(Icons.copy_rounded, size: 16, color: AppColors.primaryColor),
-            onPressed: onAction,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+          InkWell(
+            onTap: onAction,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              child: const Icon(Icons.copy_rounded, size: 17, color: Color(0xFF2563EB)),
+            ),
           ),
       ],
     );

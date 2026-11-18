@@ -31,6 +31,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     String name = await SharedPreferencesHelper.getUserName() ?? 'Customer';
     String email = await SharedPreferencesHelper.getUserEmail() ?? '';
     String? avatar = await SharedPreferencesHelper.getUserAvatar();
+    const customerDefaultAvatar =
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80';
+    if (avatar == null || avatar.isEmpty || !avatar.startsWith('http')) {
+      avatar = customerDefaultAvatar;
+    }
     int unreadCount = 0;
 
     final token = await SharedPreferencesHelper.getAccessToken();
@@ -59,8 +64,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             email = uData['email'].toString();
             await SharedPreferencesHelper.setUserEmail(email);
           }
-          if (uData['avatar_url'] != null) {
+          if (uData['avatar_url'] != null && uData['avatar_url'].toString().startsWith('http')) {
             avatar = uData['avatar_url'].toString();
+            await SharedPreferencesHelper.setUserAvatar(avatar);
+          } else {
+            avatar = customerDefaultAvatar;
             await SharedPreferencesHelper.setUserAvatar(avatar);
           }
         }
@@ -150,12 +158,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  void _onCategorySelected(HomeCategorySelected event, Emitter<HomeState> emit) {
+  Future<void> _onCategorySelected(HomeCategorySelected event, Emitter<HomeState> emit) async {
     final filtered = _filterAndSortServices(state.allServices, event.category, state.searchQuery, state.sortOption);
     emit(state.copyWith(
       selectedCategory: event.category,
       filteredServices: filtered,
     ));
+
+    await _fetchFilteredFromBackend(event.category, state.searchQuery, state.sortOption, emit);
   }
 
   void _onSearchChanged(HomeSearchChanged event, Emitter<HomeState> emit) {
@@ -166,13 +176,70 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     ));
   }
 
-  void _onFilterApplied(HomeFilterApplied event, Emitter<HomeState> emit) {
+  Future<void> _onFilterApplied(HomeFilterApplied event, Emitter<HomeState> emit) async {
     final filtered = _filterAndSortServices(state.allServices, event.category, state.searchQuery, event.sortOption);
     emit(state.copyWith(
       selectedCategory: event.category,
       sortOption: event.sortOption,
       filteredServices: filtered,
     ));
+
+    await _fetchFilteredFromBackend(event.category, state.searchQuery, event.sortOption, emit);
+  }
+
+  Future<void> _fetchFilteredFromBackend(
+    String category,
+    String query,
+    ServiceSortOption sortOption,
+    Emitter<HomeState> emit,
+  ) async {
+    String? sortParam;
+    switch (sortOption) {
+      case ServiceSortOption.priceLowHigh:
+        sortParam = 'price_low_high';
+        break;
+      case ServiceSortOption.priceHighLow:
+        sortParam = 'price_high_low';
+        break;
+      case ServiceSortOption.ratingHigh:
+        sortParam = 'rating_high';
+        break;
+      case ServiceSortOption.defaultSort:
+        sortParam = 'recommended';
+        break;
+    }
+
+    final queryParams = <String>[];
+    if (category != 'All' && category.isNotEmpty) {
+      queryParams.add('category=${Uri.encodeComponent(category)}');
+    }
+    if (query.trim().isNotEmpty) {
+      queryParams.add('search=${Uri.encodeComponent(query.trim())}');
+    }
+    if (sortParam != null) {
+      queryParams.add('sort_by=$sortParam');
+    }
+
+    final path = queryParams.isEmpty ? Urls.services : '${Urls.services}?${queryParams.join('&')}';
+
+    try {
+      final api = FlutterApiCraft(
+        baseUrl: Urls.baseUrl,
+        path: path,
+        apiType: ApiType.get,
+        enableLoading: false,
+        enableApiSuccessResponseGetSnackBar: false,
+        enableApiErrorResponseGetSnackBar: false,
+      );
+      final res = await api.call();
+      if (res.isSuccess && res.data is Map && res.data['data'] is List) {
+        final List<dynamic> list = res.data['data'];
+        final backendServices = list.map((e) => ServiceModel.fromJson(e as Map<String, dynamic>)).toList();
+        emit(state.copyWith(
+          filteredServices: backendServices,
+        ));
+      }
+    } catch (_) {}
   }
 
   void _onFilterReset(HomeFilterReset event, Emitter<HomeState> emit) {

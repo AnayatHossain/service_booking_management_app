@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
+import 'package:service_booking_management_app/core/global_widegts/custom_bottom_navbar.dart';
 import '../bloc/navigation_cubit.dart';
 import '../../home_screen/bloc/home_bloc.dart';
 import '../../home_screen/bloc/home_event.dart';
@@ -34,58 +36,50 @@ class MainNavigationScreen extends StatelessWidget {
           ];
 
           return Scaffold(
-            body: IndexedStack(
-              index: currentIndex,
-              children: screens,
-            ),
-            bottomNavigationBar: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 14,
-                    offset: const Offset(0, -3),
+            backgroundColor: AppColors.bgColor,
+            resizeToAvoidBottomInset: false,
+            body: Stack(
+              children: [
+                Positioned.fill(
+                  child: IndexedStack(
+                    index: currentIndex,
+                    children: screens,
                   ),
-                ],
-              ),
-              child: SafeArea(
-                child: BottomNavigationBar(
-                  currentIndex: currentIndex,
-                  onTap: (index) {
-                    context.read<NavigationCubit>().changeTab(index);
-                  },
-                  type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.white,
-                  selectedItemColor: AppColors.primaryColor,
-                  unselectedItemColor: AppColors.textMuted,
-                  selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-                  elevation: 0,
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.home_outlined),
-                      activeIcon: Icon(Icons.home_rounded),
-                      label: 'Home',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.calendar_month_outlined),
-                      activeIcon: Icon(Icons.calendar_month_rounded),
-                      label: 'Bookings',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.auto_awesome_outlined),
-                      activeIcon: Icon(Icons.auto_awesome_rounded),
-                      label: 'AI Assistant',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.person_outline_rounded),
-                      activeIcon: Icon(Icons.person_rounded),
-                      label: 'Profile',
-                    ),
-                  ],
                 ),
-              ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: CustomBottomNavigationBar(
+                    selectedIndex: currentIndex,
+                    onItemTapped: (index) {
+                      context.read<NavigationCubit>().changeTab(index);
+                    },
+                    items: const [
+                      NavItemData(
+                        activeSvg: AppSvgIcons.homeFilled,
+                        inactiveSvg: AppSvgIcons.homeOutline,
+                        label: 'Home',
+                      ),
+                      NavItemData(
+                        activeSvg: AppSvgIcons.bookingFilled,
+                        inactiveSvg: AppSvgIcons.bookingOutline,
+                        label: 'Bookings',
+                      ),
+                      NavItemData(
+                        activeSvg: AppSvgIcons.botFilled,
+                        inactiveSvg: AppSvgIcons.botOutline,
+                        label: 'AI Assistant',
+                      ),
+                      NavItemData(
+                        activeSvg: AppSvgIcons.userFilled,
+                        inactiveSvg: AppSvgIcons.userOutline,
+                        label: 'Profile',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           );
         },

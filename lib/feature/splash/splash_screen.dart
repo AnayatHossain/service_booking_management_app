@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import 'package:service_booking_management_app/core/services/shared_preferences_helper.dart';
 import 'package:service_booking_management_app/feature/auth/login/screen/login_screen.dart';
 import 'package:service_booking_management_app/feature/users/normal_user/navigation/screen/main_navigation_screen.dart';
@@ -18,13 +21,23 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
-  late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _glowAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
+    // Transparent status & navigation bars for clean canvas
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+
     _initAnimations();
     _navigateNext();
   }
@@ -35,24 +48,25 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1400),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.75, end: 1.0).animate(
+    _fadeAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.0, 0.75, curve: Curves.easeOutCubic),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(
         parent: _animController,
-        curve: const Interval(0.0, 0.75, curve: Curves.easeOutBack),
+        curve: const Interval(0.0, 0.85, curve: Curves.easeOutCubic),
       ),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.04),
+      end: Offset.zero,
+    ).animate(
       CurvedAnimation(
         parent: _animController,
-        curve: const Interval(0.1, 0.8, curve: Curves.easeIn),
-      ),
-    );
-
-    _glowAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: const Interval(0.3, 1.0, curve: Curves.easeInOut),
+        curve: const Interval(0.05, 0.85, curve: Curves.easeOutCubic),
       ),
     );
 
@@ -60,20 +74,32 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigateNext() async {
-    await Future.delayed(const Duration(milliseconds: 2200));
+    await Future.delayed(const Duration(milliseconds: 2400));
     if (!mounted) return;
 
     final isLoggedIn = await SharedPreferencesHelper.isLoggedIn();
+    Widget target;
+
     if (isLoggedIn) {
       final role = await SharedPreferencesHelper.getUserRole();
-      if (role == 'provider') {
-        Get.offAll(() => const ProviderNavigationScreen());
+      if (role != null &&
+          (role.toLowerCase() == 'provider' ||
+              role.toLowerCase() == 'service_provider' ||
+              role.toLowerCase().contains('provider'))) {
+        target = const ProviderNavigationScreen();
       } else {
-        Get.offAll(() => const MainNavigationScreen());
+        target = const MainNavigationScreen();
       }
     } else {
-      Get.offAll(() => const LoginScreen());
+      target = const LoginScreen();
     }
+
+    Get.offAll(
+      () => target,
+      transition: Transition.fadeIn,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -84,214 +110,191 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
-      backgroundColor: const Color(0xFF0A1E4A),
+      backgroundColor: Colors.white,
       body: Stack(
+        alignment: Alignment.center,
         children: [
-          // 1. Deep Royal Gradient Background
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF0F3B82),
-                  Color(0xFF0B2B66),
-                  Color(0xFF081C44),
-                ],
-                stops: [0.0, 0.55, 1.0],
-              ),
-            ),
-          ),
-
-          // 2. Ambient Subtle Glow Orbs
-          Positioned(
-            top: -size.width * 0.3,
-            right: -size.width * 0.2,
-            child: Container(
-              width: size.width * 0.9,
-              height: size.width * 0.9,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFF2979FF).withOpacity(0.22),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -size.width * 0.3,
-            left: -size.width * 0.2,
-            child: Container(
-              width: size.width * 0.9,
-              height: size.width * 0.9,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFF00B0FF).withOpacity(0.18),
-                    Colors.transparent,
-                  ],
+          // 1. Subtle Radial Ambient Glow behind Icon
+          Positioned.fill(
+            child: Center(
+              child: Container(
+                width: 320,
+                height: 320,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppColors.primaryColor.withOpacity(0.08),
+                      const Color(0xFFEFF6FF).withOpacity(0.04),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.55, 1.0],
+                  ),
                 ),
               ),
             ),
           ),
 
-          // 3. Central Gorgeous Branded Logo & Title
+          // 2. Central Brand Content with Smooth Fade & Scale Animation
           Center(
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: ScaleTransition(
                 scale: _scaleAnimation,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Branded Shield Emblem with Glow
-                    AnimatedBuilder(
-                      animation: _glowAnimation,
-                      builder: (context, child) {
-                        return Container(
-                          width: 104,
-                          height: 104,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.white,
-                                Color(0xFFE3F2FD),
-                              ],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF00B0FF)
-                                    .withOpacity(0.35 * _glowAnimation.value),
-                                blurRadius: 36,
-                                spreadRadius: 4,
-                                offset: const Offset(0, 10),
-                              ),
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 12),
-                              ),
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Prominent, Gorgeous AI Icon Emblem (Enlarged & Polished)
+                      Container(
+                        width: 128,
+                        height: 128,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFFF8FAFC),
+                              Color(0xFFEFF6FF),
+                              Color(0xFFDBEAFE),
                             ],
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.85),
-                              width: 2.5,
-                            ),
                           ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Subtle background accent ring
-                              Container(
-                                width: 72,
-                                height: 72,
+                          borderRadius: BorderRadius.circular(36),
+                          border: Border.all(
+                            color: const Color(0xFFBFDBFE),
+                            width: 2.0,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryColor.withOpacity(0.18),
+                              blurRadius: 36,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 12),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.9),
+                              blurRadius: 10,
+                              offset: const Offset(0, -3),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(26),
+                        child: SvgPicture.asset(
+                          AppSvgIcons.aiLanguage,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.primaryColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Title Block with Floating AI-POWERED Badge on Top-Right (Aligned with 'g')
+                      IntrinsicWidth(
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Text(
+                              'Service Booking',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF0F172A),
+                                letterSpacing: -0.6,
+                                height: 1.15,
+                              ),
+                            ),
+                            Positioned(
+                              top: -19,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 2.5,
+                                ),
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.primaryColor.withOpacity(0.08),
-                                ),
-                              ),
-                              // Primary branded calendar / service emblem
-                              const Icon(
-                                Icons.home_repair_service_rounded,
-                                size: 48,
-                                color: AppColors.primaryColor,
-                              ),
-                              // Spark badge
-                              Positioned(
-                                top: 18,
-                                right: 18,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFB300),
-                                    shape: BoxShape.circle,
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF2563EB),
+                                      Color(0xFF1D4ED8),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                  child: const Icon(
-                                    Icons.auto_awesome_rounded,
-                                    size: 11,
+                                  borderRadius: BorderRadius.circular(6),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF2563EB).withOpacity(0.3),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Text(
+                                  'AI-POWERED',
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w800,
                                     color: Colors.white,
+                                    letterSpacing: 0.8,
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Standalone "MANAGEMENT" Pill below Service Booking
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.primaryColor.withOpacity(0.22),
+                            width: 1.2,
                           ),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    // App Title: Service Booking Management (No Subtitle!)
-                    const Text(
-                      'Service Booking',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.3,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.25),
-                          width: 1,
+                        ),
+                        child: const Text(
+                          'MANAGEMENT',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primaryColor,
+                            letterSpacing: 4.0,
+                          ),
                         ),
                       ),
-                      child: const Text(
-                        'MANAGEMENT',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF64B5F6),
-                          letterSpacing: 3.5,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
 
-          // 4. Bottom Modern Loading Indicator & Version
+          // 3. Bottom Modern Tagline
           Positioned(
-            bottom: 44,
+            bottom: 38,
             left: 0,
             right: 0,
             child: FadeTransition(
               opacity: _fadeAnimation,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white.withOpacity(0.85),
-                      ),
-                    ),
-                  ),
-                ],
+              child: const Text(
+                'Intelligent • Seamless • Reliable',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF94A3B8),
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
           ),

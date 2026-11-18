@@ -5,6 +5,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
 import 'package:service_booking_management_app/core/global_widegts/empty_screen_widget.dart';
+import 'package:service_booking_management_app/core/global_widegts/rating_review_dialog.dart';
 import '../bloc/my_bookings_bloc.dart';
 import '../bloc/my_bookings_event.dart';
 import '../bloc/my_bookings_state.dart';
@@ -271,146 +272,19 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   void _showRatingDialog(BuildContext context, BookingModel booking, MyBookingsBloc bloc) {
-    double selectedRating = 5.0;
-    final reviewController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          String ratingLabel;
-          if (selectedRating >= 5.0) {
-            ratingLabel = 'Excellent! 🌟';
-          } else if (selectedRating >= 4.0) {
-            ratingLabel = 'Very Good! 😊';
-          } else if (selectedRating >= 3.0) {
-            ratingLabel = 'Good 🙂';
-          } else if (selectedRating >= 2.0) {
-            ratingLabel = 'Fair 😐';
-          } else {
-            ratingLabel = 'Needs Improvement 😕';
-          }
-
-          return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-            title: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFFBEB),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 36),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Rate & Review Service',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.textPrimary),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  booking.serviceName,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Interactive Star Selector
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      final starValue = index + 1.0;
-                      return GestureDetector(
-                        onTap: () {
-                          setDialogState(() {
-                            selectedRating = starValue;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Icon(
-                            starValue <= selectedRating ? Icons.star_rounded : Icons.star_outline_rounded,
-                            size: 38,
-                            color: const Color(0xFFF59E0B),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    ratingLabel,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFB45309),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // Review Text Field
-                  TextField(
-                    controller: reviewController,
-                    maxLines: 3,
-                    style: const TextStyle(fontSize: 13),
-                    decoration: InputDecoration(
-                      hintText: 'Share your experience (optional)...',
-                      hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.strokeColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.strokeColor.withOpacity(0.8)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primaryColor, width: 1.5),
-                      ),
-                      contentPadding: const EdgeInsets.all(12),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actionsPadding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('Not Now', style: TextStyle(color: AppColors.textSecondary)),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  bloc.add(MyBookingsRateRequested(
-                    appointmentId: booking.id,
-                    rating: selectedRating,
-                    review: reviewController.text.trim().isNotEmpty ? reviewController.text.trim() : null,
-                  ));
-                },
-                child: const Text('Submit Rating', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
-          );
-        },
-      ),
+    RatingReviewDialog.show(
+      context,
+      appointmentId: booking.id,
+      serviceName: booking.serviceName,
+      serviceCategory: booking.serviceCategory,
+      serviceImage: booking.serviceImage,
+      onSubmit: (rating, review) async {
+        bloc.add(MyBookingsRateRequested(
+          appointmentId: booking.id,
+          rating: rating,
+          review: review,
+        ));
+      },
     );
   }
 
@@ -497,26 +371,23 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               onRefresh: () {
                 bloc.add(const MyBookingsFetchRequested());
               },
-              child: Skeletonizer(
-                enabled: isLoading,
-                child: (!isLoading && state.filteredBookings.isEmpty)
-                    ? EmptyScreenWidget(
-                        title: 'No Appointments Found',
-                        subtitle: state.selectedTab == 0
-                            ? 'You have not booked any appointments yet.'
-                            : 'No appointments under this status.',
-                        icon: Icons.event_busy_rounded,
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.only(top: 8, bottom: 28),
-                        itemCount: isLoading ? 3 : state.filteredBookings.length,
-                        itemBuilder: (context, index) {
-                          if (isLoading) {
-                            return BookingCard(
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(top: 8, bottom: 145),
+                children: [
+                  Skeletonizer(
+                    enabled: isLoading,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (isLoading)
+                          ...List.generate(
+                            3,
+                            (index) => BookingCard(
                               booking: BookingModel(
-                                id: 'placeholder-id',
+                                id: 'placeholder-$index',
                                 userId: 'uid',
-                                userName: 'User Name',
+                                userName: 'Customer Name',
                                 userEmail: 'user@example.com',
                                 serviceId: 'sid',
                                 serviceName: 'Loading Appointment Details...',
@@ -530,29 +401,43 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                                 createdAt: '',
                               ),
                               onCancelTap: null,
-                            );
-                          }
-
-                          final booking = state.filteredBookings[index];
-                          return BookingCard(
-                            booking: booking,
-                            onTap: () {
-                              Get.to(() => BookingDetailsScreen(
-                                    booking: booking,
-                                    onCancelBooking: booking.canBeCancelled
-                                        ? () => _confirmCancel(context, booking, bloc)
-                                        : null,
-                                  ));
-                            },
-                            onCancel: booking.canBeCancelled
-                                ? () => _confirmCancel(context, booking, bloc)
-                                : null,
-                            onRateTap: booking.canBeRated
-                                ? () => _showRatingDialog(context, booking, bloc)
-                                : null,
-                          );
-                        },
-                      ),
+                            ),
+                          )
+                        else if (state.filteredBookings.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 60),
+                            child: EmptyScreenWidget(
+                              title: 'No Appointments Found',
+                              subtitle: state.selectedTab == 0
+                                  ? 'You have not booked any appointments yet.'
+                                  : 'No appointments under this status.',
+                              icon: Icons.event_busy_rounded,
+                            ),
+                          )
+                        else
+                          ...state.filteredBookings.map(
+                            (booking) => BookingCard(
+                              booking: booking,
+                              onTap: () {
+                                Get.to(() => BookingDetailsScreen(
+                                      booking: booking,
+                                      onCancelBooking: booking.canBeCancelled
+                                          ? () => _confirmCancel(context, booking, bloc)
+                                          : null,
+                                    ));
+                              },
+                              onCancel: booking.canBeCancelled
+                                  ? () => _confirmCancel(context, booking, bloc)
+                                  : null,
+                              onRateTap: booking.canBeRated
+                                  ? () => _showRatingDialog(context, booking, bloc)
+                                  : null,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           );

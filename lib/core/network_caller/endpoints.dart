@@ -53,11 +53,14 @@ class Urls {
   static const String unreadNotificationsCount = 'notifications/unread-count';
   static String markNotificationRead(String id) => 'notifications/$id/read';
   static const String markAllNotificationsRead = 'notifications/read-all';
+  static String deleteNotification(String id) => 'notifications/$id';
 
   // Provider endpoints
   static const String providerServices = 'services/provider/my-services';
   static const String providerBookings = 'appointments/provider/my-bookings';
   static String providerUpdateBookingStatus(String id, String status) => 'appointments/$id/status?status=$status';
+  static String providerUpdateService(String id) => 'services/$id';
+  static String providerDeleteService(String id) => 'services/$id';
 
   // Token helper
   static Future<String?> get rawToken async {

@@ -5,7 +5,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import '../../appointment/screen/appointment_screen.dart';
 import '../../home_screen/model/service_model.dart';
 import '../bloc/service_details_bloc.dart';
@@ -82,7 +84,12 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                         child: CircleAvatar(
                           backgroundColor: Colors.black.withOpacity(0.4),
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                            icon: SvgPicture.asset(
+                              AppSvgIcons.backArrow,
+                              width: 18,
+                              height: 18,
+                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            ),
                             onPressed: () => Get.back(),
                           ),
                         ),
@@ -93,7 +100,12 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                           child: CircleAvatar(
                             backgroundColor: Colors.black.withOpacity(0.4),
                             child: IconButton(
-                              icon: const Icon(Icons.share_outlined, color: Colors.white, size: 20),
+                              icon: SvgPicture.asset(
+                                AppSvgIcons.share,
+                                width: 18,
+                                height: 18,
+                                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                              ),
                               onPressed: () {
                                 final shareText = '''
 ✨ Check out "${current.name}" on Service Booking App!

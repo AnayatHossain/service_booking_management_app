@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
 
 class ProfileMenuItem extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final String title;
   final String? subtitle;
   final VoidCallback onTap;
@@ -11,7 +13,8 @@ class ProfileMenuItem extends StatelessWidget {
 
   const ProfileMenuItem({
     super.key,
-    required this.icon,
+    this.icon,
+    this.svgAsset,
     required this.title,
     this.subtitle,
     required this.onTap,
@@ -21,6 +24,8 @@ class ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = iconColor ?? AppColors.primaryColor;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
@@ -34,10 +39,17 @@ class ProfileMenuItem extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: (iconColor ?? AppColors.primaryColor).withOpacity(0.1),
+            color: effectiveColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: iconColor ?? AppColors.primaryColor, size: 20),
+          child: svgAsset != null
+              ? SvgPicture.asset(
+                  svgAsset!,
+                  width: 20,
+                  height: 20,
+                  colorFilter: ColorFilter.mode(effectiveColor, BlendMode.srcIn),
+                )
+              : Icon(icon ?? Icons.circle, color: effectiveColor, size: 20),
         ),
         title: Text(
           title,

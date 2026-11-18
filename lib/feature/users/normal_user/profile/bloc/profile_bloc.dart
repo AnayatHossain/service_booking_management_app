@@ -10,6 +10,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileLoadRequested>(_onLoadProfile);
     on<ProfileUpdateRequested>(_onUpdateProfile);
     on<ProfilePasswordChangeRequested>(_onChangePassword);
+    on<ProfileDeleteAccountRequested>(_onDeleteAccount);
     on<ProfileLogoutRequested>(_onLogout);
 
     add(const ProfileLoadRequested());
@@ -17,10 +18,18 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _onLoadProfile(
       ProfileLoadRequested event, Emitter<ProfileState> emit) async {
+    const customerDefaultAvatar =
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80';
+    const providerDefaultAvatar =
+        'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80';
+
     final name = await SharedPreferencesHelper.getUserName() ?? 'Alex Johnson';
     final email = await SharedPreferencesHelper.getUserEmail() ?? 'testuser@example.com';
     final phone = await SharedPreferencesHelper.getUserPhone();
-    final avatar = await SharedPreferencesHelper.getUserAvatar();
+    var avatar = await SharedPreferencesHelper.getUserAvatar();
+    if (avatar == null || avatar.isEmpty || !avatar.startsWith('http')) {
+      avatar = email.contains('provider') ? providerDefaultAvatar : customerDefaultAvatar;
+    }
 
     emit(state.copyWith(
       name: name,
@@ -51,8 +60,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final updatedName = u['name'] ?? name;
         final updatedEmail = u['email'] ?? email;
         final updatedPhone = u['phone'] ?? phone;
-        final updatedAvatar = u['avatar_url'] ?? avatar;
         final role = u['role'] ?? 'Customer';
+        final isProv = role.toString().toLowerCase().contains('provider') ||
+            updatedEmail.toString().contains('provider');
+        var updatedAvatar = u['avatar_url'];
+        if (updatedAvatar == null ||
+            updatedAvatar.toString().isEmpty ||
+            !updatedAvatar.toString().startsWith('http')) {
+          updatedAvatar = isProv ? providerDefaultAvatar : customerDefaultAvatar;
+        }
+        final organization = u['organization_name'] ?? u['institution_name'] ?? await SharedPreferencesHelper.getInstitutionName();
+        if (organization != null && organization.toString().isNotEmpty) {
+          await SharedPreferencesHelper.setInstitutionName(organization.toString());
+        }
         final createdAt = u['created_at'];
         final total = u['total_bookings'] ?? 0;
         final active = u['active_bookings'] ?? 0;
@@ -76,6 +96,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           email: updatedEmail,
           phone: updatedPhone,
           avatarUrl: updatedAvatar,
+          organizationName: organization,
           role: role,
           createdAt: createdAt,
           totalBookings: total,
@@ -102,6 +123,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           'name': event.name.trim(),
           if (event.phone != null) 'phone': event.phone!.trim(),
           if (event.avatarUrl != null) 'avatar_url': event.avatarUrl!.trim(),
+          if (event.organizationName != null) ...{
+            'organization_name': event.organizationName!.trim(),
+            'institution_name': event.organizationName!.trim(),
+          },
         }),
         enableLoading: false,
         enableApiSuccessResponseGetSnackBar: false,
@@ -124,11 +149,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           avatarUrl: u['avatar_url'],
         );
 
+        final updatedOrg = u['organization_name'] ?? u['institution_name'] ?? event.organizationName;
+        if (updatedOrg != null && updatedOrg.toString().isNotEmpty) {
+          await SharedPreferencesHelper.setInstitutionName(updatedOrg.toString());
+        }
+
         emit(state.copyWith(
           isUpdating: false,
           name: u['name'] ?? event.name,
           phone: u['phone'] ?? event.phone,
           avatarUrl: u['avatar_url'] ?? event.avatarUrl,
+          organizationName: updatedOrg,
           message: 'Profile updated successfully.',
         ));
       } else {
@@ -188,6 +219,48 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(state.copyWith(
         isChangingPassword: false,
         errorMessage: 'Password change error: $e',
+      ));
+    }
+  }
+
+  Future<void> _onDeleteAccount(
+      ProfileDeleteAccountRequested event, Emitter<ProfileState> emit) async {
+    emit(state.copyWith(isDeletingAccount: true, message: null, errorMessage: null));
+
+    try {
+      final token = await Urls.rawToken;
+      final api = FlutterApiCraft(
+        baseUrl: Urls.baseUrl,
+        path: Urls.profile,
+        apiType: ApiType.delete,
+        apiAuthorization: token != null ? ApiAuthorization.bearer(token) : null,
+        enableLoading: false,
+        enableApiSuccessResponseGetSnackBar: false,
+        enableApiErrorResponseGetSnackBar: false,
+      );
+
+      final response = await api.call();
+
+      if (response.isSuccess) {
+        await SharedPreferencesHelper.clearUserData();
+        emit(state.copyWith(
+          isDeletingAccount: false,
+          isAccountDeleted: true,
+          message: 'Account permanently deleted.',
+        ));
+      } else {
+        final msg = response.errorMessage ??
+            (response.data is Map ? response.data['message'] : null) ??
+            'Failed to delete account.';
+        emit(state.copyWith(
+          isDeletingAccount: false,
+          errorMessage: msg,
+        ));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        isDeletingAccount: false,
+        errorMessage: 'Delete account error: $e',
       ));
     }
   }

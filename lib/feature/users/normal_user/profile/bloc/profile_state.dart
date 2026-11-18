@@ -8,6 +8,7 @@ class ProfileState extends Equatable {
   final String email;
   final String? phone;
   final String? avatarUrl;
+  final String? organizationName;
   final int totalBookings;
   final int activeBookings;
   final int completedBookings;
@@ -16,6 +17,8 @@ class ProfileState extends Equatable {
   final String? createdAt;
   final bool isUpdating;
   final bool isChangingPassword;
+  final bool isDeletingAccount;
+  final bool isAccountDeleted;
   final bool isLoggedOut;
   final String? message;
   final String? errorMessage;
@@ -26,6 +29,7 @@ class ProfileState extends Equatable {
     this.email = '',
     this.phone,
     this.avatarUrl,
+    this.organizationName,
     this.totalBookings = 0,
     this.activeBookings = 0,
     this.completedBookings = 0,
@@ -34,6 +38,8 @@ class ProfileState extends Equatable {
     this.createdAt,
     this.isUpdating = false,
     this.isChangingPassword = false,
+    this.isDeletingAccount = false,
+    this.isAccountDeleted = false,
     this.isLoggedOut = false,
     this.message,
     this.errorMessage,
@@ -45,6 +51,7 @@ class ProfileState extends Equatable {
     String? email,
     String? phone,
     String? avatarUrl,
+    String? organizationName,
     int? totalBookings,
     int? activeBookings,
     int? completedBookings,
@@ -53,6 +60,8 @@ class ProfileState extends Equatable {
     String? createdAt,
     bool? isUpdating,
     bool? isChangingPassword,
+    bool? isDeletingAccount,
+    bool? isAccountDeleted,
     bool? isLoggedOut,
     String? message,
     String? errorMessage,
@@ -63,6 +72,7 @@ class ProfileState extends Equatable {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      organizationName: organizationName ?? this.organizationName,
       totalBookings: totalBookings ?? this.totalBookings,
       activeBookings: activeBookings ?? this.activeBookings,
       completedBookings: completedBookings ?? this.completedBookings,
@@ -71,6 +81,8 @@ class ProfileState extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       isUpdating: isUpdating ?? this.isUpdating,
       isChangingPassword: isChangingPassword ?? this.isChangingPassword,
+      isDeletingAccount: isDeletingAccount ?? this.isDeletingAccount,
+      isAccountDeleted: isAccountDeleted ?? this.isAccountDeleted,
       isLoggedOut: isLoggedOut ?? this.isLoggedOut,
       message: message,
       errorMessage: errorMessage,
@@ -84,6 +96,7 @@ class ProfileState extends Equatable {
         email,
         phone,
         avatarUrl,
+        organizationName,
         totalBookings,
         activeBookings,
         completedBookings,
@@ -92,6 +105,8 @@ class ProfileState extends Equatable {
         createdAt,
         isUpdating,
         isChangingPassword,
+        isDeletingAccount,
+        isAccountDeleted,
         isLoggedOut,
         message,
         errorMessage,

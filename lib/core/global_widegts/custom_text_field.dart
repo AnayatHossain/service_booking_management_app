@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../const/app_colors.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -78,6 +79,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 
   Widget? _buildPrefix() {
+    if (widget.prefixIcon is Widget) {
+      return widget.prefixIcon as Widget;
+    }
     if (widget.prefixIconData != null) {
       return Icon(widget.prefixIconData,
           color: _focusNode.hasFocus ? AppColors.primaryColor : AppColors.textMuted, size: 20);
@@ -87,9 +91,24 @@ class _CustomTextFieldState extends State<CustomTextField> {
           color: _focusNode.hasFocus ? AppColors.primaryColor : AppColors.textMuted, size: 20);
     }
     if (widget.prefixIcon is String) {
+      final str = widget.prefixIcon as String;
+      if (str.endsWith('.svg')) {
+        return Padding(
+          padding: const EdgeInsets.all(12),
+          child: SvgPicture.asset(
+            str,
+            width: 20,
+            height: 20,
+            colorFilter: ColorFilter.mode(
+              _focusNode.hasFocus ? AppColors.primaryColor : AppColors.textMuted,
+              BlendMode.srcIn,
+            ),
+          ),
+        );
+      }
       return Padding(
         padding: const EdgeInsets.all(12),
-        child: Image.asset(widget.prefixIcon as String, width: 20, height: 20),
+        child: Image.asset(str, width: 20, height: 20),
       );
     }
     return null;

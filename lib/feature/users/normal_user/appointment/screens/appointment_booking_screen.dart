@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import 'package:service_booking_management_app/core/global_widegts/app_button.dart';
 import 'package:service_booking_management_app/core/global_widegts/custom_text_field.dart';
 import '../../home_screen/model/service_model.dart';
@@ -267,7 +269,12 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
               elevation: 0,
               centerTitle: true,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 20),
+                icon: SvgPicture.asset(
+                  AppSvgIcons.backArrow,
+                  width: 18,
+                  height: 18,
+                  colorFilter: const ColorFilter.mode(AppColors.textPrimary, BlendMode.srcIn),
+                ),
                 onPressed: () => Get.back(),
               ),
               title: const Text(

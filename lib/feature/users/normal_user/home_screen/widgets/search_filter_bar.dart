@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 
 class SearchFilterBar extends StatelessWidget {
   final TextEditingController controller;
@@ -33,7 +35,12 @@ class SearchFilterBar extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 14),
-          const Icon(Icons.search_rounded, color: AppColors.primaryColor, size: 22),
+          SvgPicture.asset(
+            AppSvgIcons.search,
+            width: 20,
+            height: 20,
+            colorFilter: const ColorFilter.mode(AppColors.primaryColor, BlendMode.srcIn),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
@@ -45,7 +52,7 @@ class SearchFilterBar extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
               decoration: const InputDecoration(
-                hintText: 'Search services (cleaning, repair, salon...)',
+                hintText: 'Search services...',
                 hintStyle: TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 13,
@@ -59,7 +66,12 @@ class SearchFilterBar extends StatelessWidget {
           ),
           if (controller.text.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.textMuted),
+              icon: SvgPicture.asset(
+                AppSvgIcons.close,
+                width: 16,
+                height: 16,
+                colorFilter: const ColorFilter.mode(AppColors.textMuted, BlendMode.srcIn),
+              ),
               onPressed: () {
                 controller.clear();
                 onChanged('');
@@ -80,10 +92,11 @@ class SearchFilterBar extends StatelessWidget {
             ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              child: const Icon(
-                Icons.tune_rounded,
-                color: AppColors.primaryColor,
-                size: 20,
+              child: SvgPicture.asset(
+                AppSvgIcons.filter,
+                width: 20,
+                height: 20,
+                colorFilter: const ColorFilter.mode(AppColors.primaryColor, BlendMode.srcIn),
               ),
             ),
           ),

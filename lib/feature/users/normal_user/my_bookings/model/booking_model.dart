@@ -3,6 +3,8 @@ class BookingModel {
   final String userId;
   final String userName;
   final String userEmail;
+  final String? userPhone;
+  final String? userAvatar;
   final String serviceId;
   final String serviceName;
   final String serviceCategory;
@@ -23,6 +25,8 @@ class BookingModel {
     required this.userId,
     required this.userName,
     required this.userEmail,
+    this.userPhone,
+    this.userAvatar,
     required this.serviceId,
     required this.serviceName,
     required this.serviceCategory,
@@ -44,7 +48,8 @@ class BookingModel {
   bool get isCancelled => status.toLowerCase() == 'cancelled';
   bool get isCompleted => status.toLowerCase() == 'completed';
   bool get canBeCancelled => (isPending || isConfirmed);
-  bool get canBeRated => isCompleted && !isRated;
+  bool get isAlreadyRated => isRated || rating != null;
+  bool get canBeRated => isCompleted && !isAlreadyRated;
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
@@ -52,6 +57,8 @@ class BookingModel {
       userId: json['user_id'] ?? '',
       userName: json['user_name'] ?? '',
       userEmail: json['user_email'] ?? '',
+      userPhone: json['user_phone'] ?? json['phone'],
+      userAvatar: json['user_avatar'] ?? json['client_avatar'],
       serviceId: json['service_id'] ?? '',
       serviceName: json['service_name'] ?? '',
       serviceCategory: json['service_category'] ?? '',
@@ -66,6 +73,77 @@ class BookingModel {
       rating: (json['rating'] is num) ? (json['rating'] as num).toDouble() : null,
       review: json['review'],
       createdAt: json['created_at'] ?? '',
+    );
+  }
+
+  BookingModel copyWith({
+    String? id,
+    String? userId,
+    String? userName,
+    String? userEmail,
+    String? userPhone,
+    String? userAvatar,
+    String? serviceId,
+    String? serviceName,
+    String? serviceCategory,
+    double? servicePrice,
+    String? serviceImage,
+    String? date,
+    String? timeSlot,
+    int? durationMinutes,
+    String? status,
+    String? customerNotes,
+    bool? isRated,
+    double? rating,
+    String? review,
+    String? createdAt,
+  }) {
+    return BookingModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userEmail: userEmail ?? this.userEmail,
+      userPhone: userPhone ?? this.userPhone,
+      userAvatar: userAvatar ?? this.userAvatar,
+      serviceId: serviceId ?? this.serviceId,
+      serviceName: serviceName ?? this.serviceName,
+      serviceCategory: serviceCategory ?? this.serviceCategory,
+      servicePrice: servicePrice ?? this.servicePrice,
+      serviceImage: serviceImage ?? this.serviceImage,
+      date: date ?? this.date,
+      timeSlot: timeSlot ?? this.timeSlot,
+      durationMinutes: durationMinutes ?? this.durationMinutes,
+      status: status ?? this.status,
+      customerNotes: customerNotes ?? this.customerNotes,
+      isRated: isRated ?? this.isRated,
+      rating: rating ?? this.rating,
+      review: review ?? this.review,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  BookingModel copyWithRatingReset() {
+    return BookingModel(
+      id: id,
+      userId: userId,
+      userName: userName,
+      userEmail: userEmail,
+      userPhone: userPhone,
+      userAvatar: userAvatar,
+      serviceId: serviceId,
+      serviceName: serviceName,
+      serviceCategory: serviceCategory,
+      servicePrice: servicePrice,
+      serviceImage: serviceImage,
+      date: date,
+      timeSlot: timeSlot,
+      durationMinutes: durationMinutes,
+      status: status,
+      customerNotes: customerNotes,
+      isRated: false,
+      rating: null,
+      review: null,
+      createdAt: createdAt,
     );
   }
 }
