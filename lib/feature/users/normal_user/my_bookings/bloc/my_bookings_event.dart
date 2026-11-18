@@ -40,3 +40,12 @@ class MyBookingsRateRequested extends MyBookingsEvent {
   @override
   List<Object?> get props => [appointmentId, rating, review];
 }
+
+class MyBookingsStatusUpdated extends MyBookingsEvent {
+  final String appointmentId;
+  final String newStatus;
+  const MyBookingsStatusUpdated({required this.appointmentId, required this.newStatus});
+
+  @override
+  List<Object?> get props => [appointmentId, newStatus];
+}

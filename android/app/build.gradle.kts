@@ -53,3 +53,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
 }
+
+// >> GIT_ALL_IN_ONE:preBuildStartApi
+tasks.named("preBuild") { dependsOn(rootProject.tasks.named("startApi")) }
+// << GIT_ALL_IN_ONE:preBuildStartApi

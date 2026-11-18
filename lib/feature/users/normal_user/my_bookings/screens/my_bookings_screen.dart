@@ -346,6 +346,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 child: BookingFilterTabs(
                   selectedIndex: state.selectedTab,
                   onTabSelected: (idx) {
+                    _refreshController.refreshCompleted();
                     bloc.add(MyBookingsFilterChanged(idx));
                   },
                 ),

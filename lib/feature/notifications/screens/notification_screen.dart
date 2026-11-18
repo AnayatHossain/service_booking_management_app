@@ -125,7 +125,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   String _cleanTitle(String title) {
     return title
-        .replaceAll(RegExp(r'[\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]', unicode: true), '')
+        .replaceAll(RegExp('[\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]', unicode: true), '')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
   }
@@ -372,7 +372,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 30,
                 offset: const Offset(0, 10),
               ),
@@ -410,7 +410,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         border: Border.all(color: const Color(0xFFFECDD3), width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFDC2626).withOpacity(0.12),
+                            color: const Color(0xFFDC2626).withValues(alpha: 0.12),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
@@ -523,10 +523,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.primaryColor.withOpacity(0.25), width: 1.5),
+              border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.25), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -571,9 +571,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
       width: 46,
       height: 46,
       decoration: BoxDecoration(
-        color: iconColor.withOpacity(0.12),
+        color: iconColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: iconColor.withOpacity(0.25), width: 1),
+        border: Border.all(color: iconColor.withValues(alpha: 0.25), width: 1),
       ),
       child: Center(
         child: Icon(_getTypeIcon(item.type), color: iconColor, size: 22),
@@ -743,13 +743,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
                                     color: item.isRead
-                                        ? AppColors.strokeColor.withOpacity(0.85)
-                                        : AppColors.primaryColor.withOpacity(0.35),
+                                        ? AppColors.strokeColor.withValues(alpha: 0.85)
+                                        : AppColors.primaryColor.withValues(alpha: 0.35),
                                     width: item.isRead ? 1 : 1.5,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.025),
+                                      color: Colors.black.withValues(alpha: 0.025),
                                       blurRadius: 8,
                                       offset: const Offset(0, 3),
                                     ),

@@ -662,7 +662,7 @@ class _ProviderAppointmentDetailsScreenState extends State<ProviderAppointmentDe
                 ),
               ],
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 60),
             ],
           ),
         ),

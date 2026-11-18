@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_logo.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import 'package:service_booking_management_app/feature/users/normal_user/navigation/screen/main_navigation_screen.dart';
 import '../../../users/service_provider/navigation/screens/provider_navigation_screen.dart';
 import '../bloc/signup_bloc.dart';
@@ -147,6 +150,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 0. Top App Logo Emblem
+                    Center(
+                      child: Container(
+                        width: 68,
+                        height: 68,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryColor.withOpacity(0.15),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: Image.asset(
+                          AppLogo.appLogo,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
                     // 1. Role Toggle Tabs (Customer vs Service Provider)
                     Container(
                       width: double.infinity,
@@ -189,7 +217,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _buildInputField(
                       controller: _nameController,
                       hintText: _currentRole == 'provider' ? 'e.g. David Miller' : 'e.g. Alex Johnson',
-                      prefixIcon: Icons.person_outline_rounded,
+                      prefixIcon: AppSvgIcons.userOutline,
                     ),
                     const SizedBox(height: 16),
 
@@ -203,7 +231,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       _buildInputField(
                         controller: _institutionController,
                         hintText: 'e.g. Apex Home Solutions Ltd',
-                        prefixIcon: Icons.storefront_outlined,
+                        prefixIcon: AppSvgIcons.enterprise,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -214,7 +242,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _buildInputField(
                       controller: _emailController,
                       hintText: 'name@example.com',
-                      prefixIcon: Icons.alternate_email_rounded,
+                      prefixIcon: AppSvgIcons.mailOutline,
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 16),
@@ -225,7 +253,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _buildInputField(
                       controller: _phoneController,
                       hintText: '+1 (555) 000-0000',
-                      prefixIcon: Icons.phone_outlined,
+                      prefixIcon: AppSvgIcons.telephone,
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 16),
@@ -236,7 +264,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _buildInputField(
                       controller: _passwordController,
                       hintText: 'Create a strong password',
-                      prefixIcon: Icons.lock_outline_rounded,
+                      prefixIcon: AppSvgIcons.lockOutline,
                       obscureText: !state.isPasswordVisible,
                       onChanged: (val) {
                         setState(() => _passwordInput = val);
@@ -305,7 +333,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     _buildInputField(
                       controller: _confirmPasswordController,
                       hintText: 'Re-enter your password',
-                      prefixIcon: Icons.lock_reset_rounded,
+                      prefixIcon: AppSvgIcons.lockOutline,
                       obscureText: !state.isConfirmPasswordVisible,
                       onChanged: (val) {
                         setState(() => _confirmPasswordInput = val);
@@ -505,12 +533,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget _buildInputField({
     required TextEditingController controller,
     required String hintText,
-    required IconData prefixIcon,
+    required dynamic prefixIcon,
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
     Widget? suffixIcon,
     ValueChanged<String>? onChanged,
   }) {
+    Widget? prefixWidget;
+    if (prefixIcon is String) {
+      prefixWidget = Padding(
+        padding: const EdgeInsets.all(13),
+        child: SvgPicture.asset(
+          prefixIcon,
+          width: 20,
+          height: 20,
+          colorFilter: const ColorFilter.mode(AppColors.primaryColor, BlendMode.srcIn),
+        ),
+      );
+    } else if (prefixIcon is IconData) {
+      prefixWidget = Icon(prefixIcon, color: AppColors.primaryColor, size: 20);
+    } else if (prefixIcon is Widget) {
+      prefixWidget = prefixIcon;
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
@@ -526,7 +571,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-          prefixIcon: Icon(prefixIcon, color: AppColors.primaryColor, size: 20),
+          prefixIcon: prefixWidget,
           suffixIcon: suffixIcon,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

@@ -31,3 +31,12 @@ class ProviderBookingStatusUpdateRequested extends ProviderBookingsEvent {
   @override
   List<Object?> get props => [bookingId, newStatus];
 }
+
+class ProviderBookingStatusUpdated extends ProviderBookingsEvent {
+  final String bookingId;
+  final String newStatus;
+  const ProviderBookingStatusUpdated({required this.bookingId, required this.newStatus});
+
+  @override
+  List<Object?> get props => [bookingId, newStatus];
+}

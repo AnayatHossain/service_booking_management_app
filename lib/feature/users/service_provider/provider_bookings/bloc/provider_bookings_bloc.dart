@@ -11,6 +11,7 @@ class ProviderBookingsBloc extends Bloc<ProviderBookingsEvent, ProviderBookingsS
     on<ProviderBookingsFetchRequested>(_onFetchRequested);
     on<ProviderBookingsTabChanged>(_onTabChanged);
     on<ProviderBookingStatusUpdateRequested>(_onStatusUpdateRequested);
+    on<ProviderBookingStatusUpdated>(_onStatusUpdated);
   }
 
   Future<void> _onFetchRequested(
@@ -63,6 +64,19 @@ class ProviderBookingsBloc extends Bloc<ProviderBookingsEvent, ProviderBookingsS
     Emitter<ProviderBookingsState> emit,
   ) {
     emit(state.copyWith(selectedTab: event.tabIndex));
+  }
+
+  void _onStatusUpdated(
+    ProviderBookingStatusUpdated event,
+    Emitter<ProviderBookingsState> emit,
+  ) {
+    final updatedList = state.allBookings.map((b) {
+      if (b.id == event.bookingId) {
+        return b.copyWith(status: event.newStatus);
+      }
+      return b;
+    }).toList();
+    emit(state.copyWith(allBookings: updatedList));
   }
 
   Future<void> _onStatusUpdateRequested(
