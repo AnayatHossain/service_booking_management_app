@@ -10,7 +10,7 @@ class ProviderDashboardModel {
   final List<dynamic> recentBookings;
 
   const ProviderDashboardModel({
-    this.providerName = 'Apex Pro Services',
+    this.providerName = '',
     this.institutionName = '',
     this.avatarUrl,
     this.totalServices = 0,

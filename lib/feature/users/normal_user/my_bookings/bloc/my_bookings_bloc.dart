@@ -16,9 +16,13 @@ class MyBookingsBloc extends Bloc<MyBookingsEvent, MyBookingsState> {
     on<MyBookingsFilterChanged>(_onFilterChanged);
     on<MyBookingsCancelRequested>(_onCancelBooking);
     on<MyBookingsRateRequested>(_onRateBooking);
+    on<MyBookingsStatusUpdated>(_onStatusUpdated);
 
     _statusSubscription = BookingEventBus.stream.listen((event) {
-      add(const MyBookingsFetchRequested());
+      add(MyBookingsStatusUpdated(
+        appointmentId: event.bookingId,
+        newStatus: event.newStatus,
+      ));
     });
 
     _ratedSubscription = BookingEventBus.ratedStream.listen((event) {
@@ -89,6 +93,21 @@ class MyBookingsBloc extends Bloc<MyBookingsEvent, MyBookingsState> {
     ));
   }
 
+  void _onStatusUpdated(
+      MyBookingsStatusUpdated event, Emitter<MyBookingsState> emit) {
+    final updated = state.allBookings.map((b) {
+      if (b.id == event.appointmentId) {
+        return b.copyWith(status: event.newStatus);
+      }
+      return b;
+    }).toList();
+    final filtered = _filterByTab(updated, state.selectedTab);
+    emit(state.copyWith(
+      allBookings: updated,
+      filteredBookings: filtered,
+    ));
+  }
+
   Future<void> _onCancelBooking(
       MyBookingsCancelRequested event, Emitter<MyBookingsState> emit) async {
     emit(state.copyWith(isCancelling: true, errorMessage: null, successMessage: null));
@@ -108,11 +127,18 @@ class MyBookingsBloc extends Bloc<MyBookingsEvent, MyBookingsState> {
       final response = await api.call();
 
       if (response.isSuccess) {
+        BookingEventBus.notifyStatusChanged(
+          bookingId: event.appointmentId,
+          newStatus: 'Cancelled',
+        );
+        add(MyBookingsStatusUpdated(
+          appointmentId: event.appointmentId,
+          newStatus: 'Cancelled',
+        ));
         emit(state.copyWith(
           isCancelling: false,
           successMessage: 'Appointment cancelled successfully.',
         ));
-        add(const MyBookingsFetchRequested());
       } else {
         final msg = response.errorMessage ??
             (response.data is Map ? response.data['message'] : null) ??

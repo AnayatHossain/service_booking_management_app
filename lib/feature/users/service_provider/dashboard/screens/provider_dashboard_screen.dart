@@ -55,6 +55,33 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       'status': 'Pending',
       'service_image': 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=800',
     },
+    {
+      'id': 'dummy_3',
+      'service_name': 'Luxury Aromatherapy Spa & Massage',
+      'user_name': 'Michael Chang',
+      'date': '2026-11-22',
+      'time_slot': '06:00 PM',
+      'status': 'Confirmed',
+      'service_image': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
+    },
+    {
+      'id': 'dummy_4',
+      'service_name': 'Air Conditioner Master Servicing',
+      'user_name': 'Emily Davis',
+      'date': '2026-11-23',
+      'time_slot': '02:00 PM',
+      'status': 'Confirmed',
+      'service_image': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800',
+    },
+    {
+      'id': 'dummy_5',
+      'service_name': 'Electrical System Inspection & Repair',
+      'user_name': 'Robert Taylor',
+      'date': '2026-11-24',
+      'time_slot': '11:00 AM',
+      'status': 'Completed',
+      'service_image': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800',
+    },
   ];
 
   @override
@@ -144,59 +171,60 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                 onRefresh: () {
                   context.read<ProviderDashboardBloc>().add(const ProviderDashboardFetchRequested());
                 },
-                child: SingleChildScrollView(
+                child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 170),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header Profile Bar
-                      _buildHeader(context, d),
-                      const SizedBox(height: 18),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 200),
+                  children: [
+                    // Header Profile Bar
+                    _buildHeader(context, d, isLoading),
+                    const SizedBox(height: 18),
 
                       // Metric Cards Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ProviderDashboardMetricCard(
-                              label: 'Services',
-                              value: '${d.totalServices}',
-                              icon: Icons.inventory_2_rounded,
-                              iconColor: const Color(0xFF2563EB),
-                              bgColor: const Color(0xFFEFF6FF),
+                      Skeletonizer(
+                        enabled: isLoading && d.totalServices == 0 && d.totalBookings == 0,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ProviderDashboardMetricCard(
+                                label: 'Services',
+                                value: '${d.totalServices}',
+                                icon: Icons.inventory_2_rounded,
+                                iconColor: const Color(0xFF2563EB),
+                                bgColor: const Color(0xFFEFF6FF),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ProviderDashboardMetricCard(
-                              label: 'Bookings',
-                              value: '${d.totalBookings}',
-                              icon: Icons.calendar_month_rounded,
-                              iconColor: const Color(0xFF8B5CF6),
-                              bgColor: const Color(0xFFF5F3FF),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ProviderDashboardMetricCard(
+                                label: 'Bookings',
+                                value: '${d.totalBookings}',
+                                icon: Icons.calendar_month_rounded,
+                                iconColor: const Color(0xFF8B5CF6),
+                                bgColor: const Color(0xFFF5F3FF),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ProviderDashboardMetricCard(
-                              label: 'Pending',
-                              value: '${d.pendingBookings}',
-                              icon: Icons.schedule_rounded,
-                              iconColor: const Color(0xFFF59E0B),
-                              bgColor: const Color(0xFFFFFBEB),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ProviderDashboardMetricCard(
+                                label: 'Pending',
+                                value: '${d.pendingBookings}',
+                                icon: Icons.schedule_rounded,
+                                iconColor: const Color(0xFFF59E0B),
+                                bgColor: const Color(0xFFFFFBEB),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ProviderDashboardMetricCard(
-                              label: 'Done',
-                              value: '${d.completedBookings}',
-                              icon: Icons.task_alt_rounded,
-                              iconColor: const Color(0xFF10B981),
-                              bgColor: const Color(0xFFECFDF5),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ProviderDashboardMetricCard(
+                                label: 'Done',
+                                value: '${d.completedBookings}',
+                                icon: Icons.task_alt_rounded,
+                                iconColor: const Color(0xFF10B981),
+                                bgColor: const Color(0xFFECFDF5),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
 
@@ -233,200 +261,206 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                       const SizedBox(height: 12),
 
                       // Recent Appointments List
-                      Skeletonizer(
-                        enabled: isLoading && d.recentBookings.isEmpty,
-                        child: recentList.isEmpty && !isLoading
-                            ? Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                                ),
-                                child: const Column(
-                                  children: [
-                                    Icon(Icons.event_available_rounded, size: 44, color: Color(0xFF94A3B8)),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      'No Appointments Yet',
-                                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'New client bookings will appear here in real-time.',
-                                      style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: recentList.length,
-                                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                                itemBuilder: (context, idx) {
-                                  final bookingMap = Map<String, dynamic>.from(recentList[idx] as Map);
-                                  final bookingObj = _mapToBookingModel(bookingMap);
-                                  return ProviderRecentAppointmentTile(
-                                    booking: bookingMap,
-                                    onTap: () {
-                                      ProviderDashboardController.navigateToBookingDetails(
-                                        context,
-                                        bookingObj,
-                                        onStatusChanged: () {
-                                          context.read<ProviderDashboardBloc>().add(const ProviderDashboardFetchRequested());
-                                        },
-                                      );
+                      if (recentList.isEmpty && !isLoading)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: const Column(
+                            children: [
+                              Icon(Icons.event_available_rounded, size: 44, color: Color(0xFF94A3B8)),
+                              SizedBox(height: 10),
+                              Text(
+                                'No Appointments Yet',
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'New client bookings will appear here in real-time.',
+                                style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...List.generate(recentList.length, (idx) {
+                          final bookingMap = Map<String, dynamic>.from(recentList[idx] as Map);
+                          final bookingObj = _mapToBookingModel(bookingMap);
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Skeletonizer(
+                              enabled: isLoading && d.recentBookings.isEmpty,
+                              child: ProviderRecentAppointmentTile(
+                                booking: bookingMap,
+                                onTap: () {
+                                  ProviderDashboardController.navigateToBookingDetails(
+                                    context,
+                                    bookingObj,
+                                    onStatusChanged: () {
+                                      context.read<ProviderDashboardBloc>().add(const ProviderDashboardFetchRequested());
                                     },
+                                  );
+                                },
+                                onConfirm: () {
+                                  ProviderBookingsController.showConfirmDialog(
+                                    context,
+                                    booking: bookingObj,
                                     onConfirm: () {
-                                      ProviderBookingsController.showConfirmDialog(
-                                        context,
-                                        booking: bookingObj,
-                                        onConfirm: () {
-                                          context.read<ProviderBookingsBloc>().add(
-                                                ProviderBookingStatusUpdateRequested(
-                                                  bookingId: bookingObj.id,
-                                                  newStatus: 'Confirmed',
-                                                ),
-                                              );
-                                          context.read<ProviderDashboardBloc>().add(
-                                                ProviderDashboardBookingStatusUpdated(
-                                                  bookingId: bookingObj.id,
-                                                  newStatus: 'Confirmed',
-                                                ),
-                                              );
-                                        },
-                                      );
+                                      context.read<ProviderBookingsBloc>().add(
+                                            ProviderBookingStatusUpdateRequested(
+                                              bookingId: bookingObj.id,
+                                              newStatus: 'Confirmed',
+                                            ),
+                                          );
+                                      context.read<ProviderDashboardBloc>().add(
+                                            ProviderDashboardBookingStatusUpdated(
+                                              bookingId: bookingObj.id,
+                                              newStatus: 'Confirmed',
+                                            ),
+                                          );
                                     },
+                                  );
+                                },
+                                onDecline: () {
+                                  ProviderBookingsController.showDeclineDialog(
+                                    context,
+                                    booking: bookingObj,
                                     onDecline: () {
-                                      ProviderBookingsController.showDeclineDialog(
-                                        context,
-                                        booking: bookingObj,
-                                        onDecline: () {
-                                          context.read<ProviderBookingsBloc>().add(
-                                                ProviderBookingStatusUpdateRequested(
-                                                  bookingId: bookingObj.id,
-                                                  newStatus: 'Cancelled',
-                                                ),
-                                              );
-                                          context.read<ProviderDashboardBloc>().add(
-                                                ProviderDashboardBookingStatusUpdated(
-                                                  bookingId: bookingObj.id,
-                                                  newStatus: 'Cancelled',
-                                                ),
-                                              );
-                                        },
-                                      );
+                                      context.read<ProviderBookingsBloc>().add(
+                                            ProviderBookingStatusUpdateRequested(
+                                              bookingId: bookingObj.id,
+                                              newStatus: 'Cancelled',
+                                            ),
+                                          );
+                                      context.read<ProviderDashboardBloc>().add(
+                                            ProviderDashboardBookingStatusUpdated(
+                                              bookingId: bookingObj.id,
+                                              newStatus: 'Cancelled',
+                                            ),
+                                          );
                                     },
+                                  );
+                                },
+                                onComplete: () {
+                                  ProviderBookingsController.showCompleteDialog(
+                                    context,
+                                    booking: bookingObj,
                                     onComplete: () {
-                                      ProviderBookingsController.showCompleteDialog(
-                                        context,
-                                        booking: bookingObj,
-                                        onComplete: () {
-                                          context.read<ProviderBookingsBloc>().add(
-                                                ProviderBookingStatusUpdateRequested(
-                                                  bookingId: bookingObj.id,
-                                                  newStatus: 'Completed',
-                                                ),
-                                              );
-                                          context.read<ProviderDashboardBloc>().add(
-                                                ProviderDashboardBookingStatusUpdated(
-                                                  bookingId: bookingObj.id,
-                                                  newStatus: 'Completed',
-                                                ),
-                                              );
-                                        },
-                                      );
+                                      context.read<ProviderBookingsBloc>().add(
+                                            ProviderBookingStatusUpdateRequested(
+                                              bookingId: bookingObj.id,
+                                              newStatus: 'Completed',
+                                            ),
+                                          );
+                                      context.read<ProviderDashboardBloc>().add(
+                                            ProviderDashboardBookingStatusUpdated(
+                                              bookingId: bookingObj.id,
+                                              newStatus: 'Completed',
+                                            ),
+                                          );
                                     },
                                   );
                                 },
                               ),
-                      ),
+                            ),
+                          );
+                        }),
                     ],
                   ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+            );
+          },
+        ),
+      );
+    }
 
-  Widget _buildHeader(BuildContext context, dynamic d) {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: widget.onProfileTap,
-          child: Stack(
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primaryColor.withOpacity(0.2), width: 1.5),
-                ),
-                child: ClipOval(
-                  child: d.avatarUrl != null && d.avatarUrl!.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: d.avatarUrl!,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => _buildInitialsAvatar(d.providerName),
-                          errorWidget: (_, __, ___) => _buildInitialsAvatar(d.providerName),
-                        )
-                      : _buildInitialsAvatar(d.providerName),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 12,
-                  height: 12,
+  Widget _buildHeader(BuildContext context, dynamic d, bool isLoading) {
+    final String displayName = (d.providerName != null && d.providerName.toString().isNotEmpty)
+        ? d.providerName.toString()
+        : (isLoading ? 'Service Provider' : 'Service Provider');
+    final String displayInst = (d.institutionName != null && d.institutionName.toString().isNotEmpty)
+        ? d.institutionName.toString()
+        : (isLoading ? 'Verified Business' : '');
+
+    return Skeletonizer(
+      enabled: isLoading && (d.providerName == null || d.providerName.toString().isEmpty),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: widget.onProfileTap,
+            child: Stack(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: AppColors.primaryColor.withOpacity(0.2), width: 1.5),
+                  ),
+                  child: ClipOval(
+                    child: d.avatarUrl != null && d.avatarUrl!.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: d.avatarUrl!,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => _buildInitialsAvatar(displayName),
+                            errorWidget: (_, __, ___) => _buildInitialsAvatar(displayName),
+                          )
+                        : _buildInitialsAvatar(displayName),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                d.providerName,
-                style: const TextStyle(
-                  fontSize: 16.5,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                  letterSpacing: -0.2,
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (d.institutionName.isNotEmpty) ...[
-                const SizedBox(height: 2),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  d.institutionName,
+                  displayName,
                   style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.2,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (displayInst.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    displayInst,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
         // Notification Bell Icon with Badge
         GestureDetector(
           onTap: () {
@@ -496,7 +530,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
         ),
       ],
-    );
+    ));
   }
 
   Widget _buildInitialsAvatar(String name) {

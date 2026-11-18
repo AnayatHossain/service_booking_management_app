@@ -25,7 +25,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> {
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   static final List<BookingModel> _dummyBookings = List.generate(
-    3,
+    5,
     (i) => BookingModel(
       id: 'dummy_$i',
       userId: 'uid',
@@ -62,7 +62,10 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> {
       create: (context) {
         final bloc = ProviderBookingsBloc()..add(const ProviderBookingsFetchRequested());
         _eventSub = BookingEventBus.stream.listen((event) {
-          bloc.add(const ProviderBookingsFetchRequested(silent: true));
+          bloc.add(ProviderBookingStatusUpdated(
+            bookingId: event.bookingId,
+            newStatus: event.newStatus,
+          ));
         });
         _ratedSub = BookingEventBus.ratedStream.listen((event) {
           bloc.add(const ProviderBookingsFetchRequested(silent: true));
@@ -102,6 +105,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> {
                 child: BookingFilterTabs(
                   selectedIndex: state.selectedTab,
                   onTabSelected: (idx) {
+                    _refreshController.refreshCompleted();
                     context.read<ProviderBookingsBloc>().add(ProviderBookingsTabChanged(idx));
                   },
                 ),
@@ -127,24 +131,30 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> {
               onRefresh: () {
                 context.read<ProviderBookingsBloc>().add(const ProviderBookingsFetchRequested());
               },
-              child: Skeletonizer(
-                enabled: isLoading && state.allBookings.isEmpty,
-                child: (!isLoading && list.isEmpty)
-                    ? EmptyScreenWidget(
-                        title: 'No Appointments Found',
-                        subtitle: state.selectedTab == 0
-                            ? 'No appointments received from clients yet.'
-                            : 'No appointments under ${ProviderBookingsState.tabs[state.selectedTab]} status.',
-                        icon: Icons.event_busy_rounded,
-                      )
-                    : ListView.separated(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 145),
-                        itemCount: list.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, idx) {
-                          final booking = list[idx];
-                          return ProviderBookingCard(
+              child: (!isLoading && list.isEmpty)
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 80, 16, 180),
+                      children: [
+                        EmptyScreenWidget(
+                          title: 'No Appointments Found',
+                          subtitle: state.selectedTab == 0
+                              ? 'No appointments received from clients yet.'
+                              : 'No appointments under ${ProviderBookingsState.tabs[state.selectedTab]} status.',
+                          icon: Icons.event_busy_rounded,
+                        ),
+                      ],
+                    )
+                  : ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 180),
+                      itemCount: list.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, idx) {
+                        final booking = list[idx];
+                        return Skeletonizer(
+                          enabled: isLoading && state.allBookings.isEmpty,
+                          child: ProviderBookingCard(
                             booking: booking,
                             onTap: () {
                               ProviderBookingsController.navigateToDetails(
@@ -197,12 +207,11 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> {
                                 },
                               );
                             },
-                          );
+                          ));
                         },
                       ),
               ),
-            ),
-          );
+            );
         },
       ),
     );

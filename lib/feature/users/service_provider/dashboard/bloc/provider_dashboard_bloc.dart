@@ -26,7 +26,7 @@ class ProviderDashboardBloc extends Bloc<ProviderDashboardEvent, ProviderDashboa
       final savedOrg = await SharedPreferencesHelper.getInstitutionName();
       final savedAvatar = await SharedPreferencesHelper.getAvatarUrl();
 
-      String pName = (savedName != null && savedName.isNotEmpty) ? savedName : 'Apex Pro Services';
+      String pName = (savedName != null && savedName.isNotEmpty) ? savedName : '';
       String instName = (savedOrg != null && savedOrg.isNotEmpty) ? savedOrg : '';
       String? aUrl = savedAvatar;
       int unread = 0;

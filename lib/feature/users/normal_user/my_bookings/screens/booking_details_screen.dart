@@ -238,14 +238,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           ),
         ),
         onRefresh: _onRefresh,
-        child: Skeletonizer(
-          enabled: _isLoading,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 60),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+          children: [
+            Skeletonizer(
+              enabled: _isLoading,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 // 1. Status & Booking ID Card
                 Container(
                   padding: const EdgeInsets.all(18),
@@ -702,22 +703,28 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                             ],
                           ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 60),
                 ],
 
+
                 // 5. Cancel Booking Action
-                if (booking.canBeCancelled && widget.onCancelBooking != null)
+                if (booking.canBeCancelled && widget.onCancelBooking != null) ...[
                   AppButton(
                     text: 'Cancel Appointment',
                     buttonColor: AppColors.error,
                     onTap: widget.onCancelBooking,
                   ),
+                  const SizedBox(height: 20),
+                ],
+
+                // Bottom Spacing for clean review visibility
+                const SizedBox(height: 20),
               ],
             ),
           ),
-        ),
+        ],
       ),
-    );
+    ));
   }
 
   Widget _buildReceiptRow(String label, String value, {bool isTotal = false}) {

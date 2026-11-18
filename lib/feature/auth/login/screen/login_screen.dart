@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import 'package:service_booking_management_app/core/const/app_colors.dart';
+import 'package:service_booking_management_app/core/const/app_logo.dart';
+import 'package:service_booking_management_app/core/const/app_svg_icons.dart';
 import 'package:service_booking_management_app/feature/users/normal_user/navigation/screen/main_navigation_screen.dart';
 import '../../../users/service_provider/navigation/screens/provider_navigation_screen.dart';
 import '../bloc/login_bloc.dart';
@@ -83,30 +86,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. Gorgeous Top Branded Emblem
+                      // 1. App Branded Emblem
                       Center(
                         child: Container(
-                          width: 68,
-                          height: 68,
+                          width: 76,
+                          height: 76,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(22),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primaryColor.withOpacity(0.35),
+                                color: AppColors.primaryColor.withOpacity(0.18),
                                 blurRadius: 18,
                                 offset: const Offset(0, 8),
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.home_repair_service_rounded,
-                            color: Colors.white,
-                            size: 34,
+                          padding: const EdgeInsets.all(12),
+                          child: Image.asset(
+                            AppLogo.appLogo,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
@@ -147,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _buildInputField(
                         controller: _emailController,
                         hintText: 'name@example.com',
-                        prefixIcon: Icons.alternate_email_rounded,
+                        prefixIcon: AppSvgIcons.mailOutline,
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (val) => bloc.add(LoginEmailChanged(val)),
                       ),
@@ -162,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _buildInputField(
                         controller: _passwordController,
                         hintText: 'Enter your password',
-                        prefixIcon: Icons.lock_outline_rounded,
+                        prefixIcon: AppSvgIcons.lockOutline,
                         obscureText: !state.isPasswordVisible,
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -362,12 +361,29 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildInputField({
     required TextEditingController controller,
     required String hintText,
-    required IconData prefixIcon,
+    required dynamic prefixIcon,
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
     Widget? suffixIcon,
     ValueChanged<String>? onChanged,
   }) {
+    Widget? prefixWidget;
+    if (prefixIcon is String) {
+      prefixWidget = Padding(
+        padding: const EdgeInsets.all(13),
+        child: SvgPicture.asset(
+          prefixIcon,
+          width: 20,
+          height: 20,
+          colorFilter: const ColorFilter.mode(AppColors.primaryColor, BlendMode.srcIn),
+        ),
+      );
+    } else if (prefixIcon is IconData) {
+      prefixWidget = Icon(prefixIcon, color: AppColors.primaryColor, size: 20);
+    } else if (prefixIcon is Widget) {
+      prefixWidget = prefixIcon;
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
@@ -383,7 +399,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-          prefixIcon: Icon(prefixIcon, color: AppColors.primaryColor, size: 20),
+          prefixIcon: prefixWidget,
           suffixIcon: suffixIcon,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
