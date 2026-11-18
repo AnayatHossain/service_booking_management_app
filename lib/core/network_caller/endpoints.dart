@@ -6,6 +6,18 @@ class Urls {
   // Automatically selects 10.0.2.2 for Android emulator and 127.0.0.1 for desktop/web
   static String get baseUrl {
     if (kIsWeb) {
+      return 'https://servicebookingmanagement.vercel.app/api';
+    }
+    try {
+      if (Platform.isAndroid) {
+        return 'https://servicebookingmanagement.vercel.app/api';
+      }
+    } catch (_) {}
+    return 'https://servicebookingmanagement.vercel.app/api';
+  }
+
+  /*static String get baseUrl {
+    if (kIsWeb) {
       return 'http://127.0.0.1:8000/api';
     }
     try {
@@ -14,7 +26,7 @@ class Urls {
       }
     } catch (_) {}
     return 'http://127.0.0.1:8000/api';
-  }
+  }  */
 
   // Auth endpoints (no leading slash to prevent double-slash in flutter_api_craft)
   static const String register = 'auth/register';
